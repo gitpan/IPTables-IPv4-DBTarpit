@@ -1,5 +1,14 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.23  Sat Dec  6 17:36:49 PST 2003
+	plugged a leak in libnet-1.02a
+	virtual memory use goes up after a call to 
+	  ptr = libnet_open_link_interface
+	and does not go back down when calling
+	  libnet_close_link_interface(ptr)
+
+	adding a call to free(ptr) in tarpit.c, seems to do the trick
+
 0.22  Sat Oct  4 17:27:29 PDT 2003
 	put a check in libdbtarpit to prevent keys that are not netaddrs
 	from being entered into the databases.

@@ -270,7 +270,9 @@ REGET_by_cursor:
   memset(&dbtp->mgdbt, 0, sizeof(DBT));
   dbtp->keydbt.data = &cursor;
   dbtp->keydbt.size = (u_int32_t)sizeof(cursor);
+
   return(dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, DB_SET_RECNO));
+
   dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, DB_SET_RECNO);
   if (! dbtp->dberr && dbtp->keydbt.size != sizeof(INADDR_BROADCAST)) {
     dbtp_del(dbtp,ai,dbtp->keydbt.data,dbtp->keydbt.size);

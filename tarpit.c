@@ -323,6 +323,7 @@ tarpit(void * m)
     rv = 1;
 
   libnet_close_link_interface(network);
+  free(network);			/* the above close_link does not seem to release memory	*/
 
   logit:
   if(msgptr == NULL)

@@ -1,7 +1,7 @@
 # /*    all lines except VERSION are C comments
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q| */ char version[] = "dbtarpit 0.22, 10-4-03"; /* | =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q| */ char version[] = "dbtarpit 0.23, 12-6-03"; /* | =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
