@@ -61,7 +61,7 @@ int fifofd = 0;
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
 ipq_packet_msg_t * m;
-struct ipq_handle * h = NULL;
+void * ipq_h = NULL;
 
 #endif
 
@@ -84,6 +84,7 @@ int main(int argc, char **argv) {
 int realMain(int argc, char **argv) {
   sigset_t set;
   struct stat sbuf;
+  struct ipq_handle * h;
   int c, dflag = 0, status;
   char * pidpathname;
 
@@ -278,7 +279,7 @@ int realMain(int argc, char **argv) {
     h = ipq_create_handle(0,PF_INET);
 #endif
   }
-  if (h == NULL) {
+  if ((ipq_h = (void *)h) == NULL) {
     rtn = errIPQ1;
     goto ErrorExit;
   }

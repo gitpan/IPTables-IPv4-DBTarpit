@@ -34,6 +34,7 @@
 
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
+#include "libipq_wrapper.h"
 #include "libnet_version.h"
 /*	workaround for ENDIAN definition problems in libnet.h	*/
 #if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0
@@ -42,7 +43,6 @@
 
 #include <libnet.h>
 #include <linux/netfilter.h>
-#include "libipq.h"
 #include "defines.h"
 #include "misc_func.h"
 
@@ -57,6 +57,10 @@
 #define IP_OFFSET	0x1FFF
 
 /*
+	NOTE: all these definitions and related code have
+	been moved to libipq_wrapper.c because of a header
+	conflict in certain Linux distributions
+
 	ipt message structure
 	from libipq.h -> linux/netfilter_ipv4/ip_queue.h
 
@@ -119,7 +123,7 @@ tarpit(void * m)
 {
 /* externs */
   extern int trace_tarpit, dummy_tarpit;
-  extern struct ipq_handle * h;
+  extern void * ipq_h;	/* ipq_handle * h;	*/
   extern u_int32_t randqueue1[], randqueue2[];
   extern int newthisminute, currentbandwidth, currentrand1, currentrand2, datalog;
   extern int oflag, Oflag, kflag, Dflag, pflag, Pflag, star;
@@ -135,8 +139,7 @@ tarpit(void * m)
   u_int boolLinuxWinProbe = 0, rv = 0, pktsize = 0, status, i, fd;
   short windowsize;
   u_short headersize, sport = 0, dport = 0, ipid, tlength;
-  ipq_packet_msg_t * m_pkt = (ipq_packet_msg_t *)m;
-  struct iphdr * iph    = (struct iphdr *)m_pkt->payload;
+  struct iphdr * iph    = (struct iphdr *)lipqw_payload(m);
   struct libnet_tcp_hdr * tcph;
   u_char * mymac, err_buf[100];
 /* err_buf will double for the packet buffer	*/
@@ -144,6 +147,7 @@ tarpit(void * m)
 
   u_int8_t *packet = NULL;
   u_int32_t len;
+  long tss;
 
 
 #if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0	/* libnet version 1.0.x		*/
@@ -154,7 +158,7 @@ tarpit(void * m)
 
   struct sockaddr_in sin;
 
-  if(h == NULL) {			/* return now if testing	*/
+  if(ipq_h == NULL) {			/* return now if testing	*/
     trace_tarpit = dummy_tarpit;	/* mark transit through this routine    */
     return(trace_tarpit);
   }
@@ -305,16 +309,16 @@ tarpit(void * m)
 
 #if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0	/* libnet version 1.0.x		*/
 
-  if ((network = libnet_open_link_interface(m_pkt->indev_name, err_buf)) == NULL)
+  if ((network = libnet_open_link_interface(lipqw_indevname(m), err_buf)) == NULL)
     goto logit;
 
-  mymac = (u_char *)libnet_get_hwaddr(network,m_pkt->indev_name,err_buf);
+  mymac = (u_char *)libnet_get_hwaddr(network,lipqw_indevname(m),err_buf);
 
   pktptr = err_buf;
   memset(pktptr, 0, packet_size);
 
   libnet_build_ethernet(
-	m_pkt->hw_addr,		/* return MAC address	*/
+	lipqw_hw_addr(m),		/* return MAC address	*/
   	mymac,			/* my outgoing device	*/
 	ETHERTYPE_IP,		/* ethernet protocol	*/
 	NULL,			/* payload (none)	*/
@@ -352,7 +356,7 @@ tarpit(void * m)
   if(Dflag)
     pkt_dump((void *)pktptr + LIBNET_ETH_H,3);
 
-  if(!(libnet_write_link_layer(network, m_pkt->indev_name, pktptr, packet_size) < packet_size))
+  if(!(libnet_write_link_layer(network, lipqw_indevname(m), pktptr, packet_size) < packet_size))
     rv = 1;
 
   libnet_close_link_interface(network);
@@ -360,7 +364,7 @@ tarpit(void * m)
 
 #else							/* libnet version 1.1x and up	*/
 
-  if ((network = libnet_init(LIBNET_LINK, m_pkt->indev_name, err_buf)) == NULL)
+  if ((network = libnet_init(LIBNET_LINK, lipqw_indevname(m), err_buf)) == NULL)
     goto logit;
 
   mymac = (u_char *)libnet_get_hwaddr(network);
@@ -396,7 +400,7 @@ tarpit(void * m)
 	0);			/* new pblock		*/
 
   libnet_build_ethernet(
-	m_pkt->hw_addr,		/* return MAC address	*/
+	lipqw_hw_addr(m),	/* return MAC address	*/
   	mymac,			/* my outgoing device	*/
 	ETHERTYPE_IP,		/* ethernet protocol	*/
 	NULL,			/* payload (none)	*/
@@ -450,15 +454,16 @@ tarpit(void * m)
     star = 1;
   }
 
+  tss = lipqw_timestamp_sec(m);
   if (fifoname != NULL) {
-    sprintf(mybuffer2, format8, m_pkt->timestamp_sec, mybuffer);
+    sprintf(mybuffer2, format8, tss, mybuffer);
     LogPrint(mybuffer2);
   }
   else if (oflag) {
     if(Oflag)
-      sprintf(mybuffer2, format8, m_pkt->timestamp_sec, mybuffer);
+      sprintf(mybuffer2, format8, tss, mybuffer);
     else {
-      strncpy(tnow, (char *)ctime(&(m_pkt->timestamp_sec)), 50);
+      strncpy(tnow, (char *)ctime(&tss), 50);
       strtok(tnow, strlf);
       sprintf(mybuffer2, format9, tnow, mybuffer);
     }

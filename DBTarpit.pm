@@ -2,7 +2,7 @@
 #
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q|char version[] = "dbtarpit 0.32, 6-27-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.33, 6-28-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
@@ -83,6 +83,15 @@ packet is not found in the database, the packet is returned
 to the chain untouched. If the IP address is found in the 
 database, the packet is dropped and the connection tarpitted.
 
+If the traffic that you wish to inspect and tarpit always comes in on a
+specific interface, you can modify the rule so that only packets from that
+interface are inspected.
+
+  INET_IFACE="eth0"	# or your internet interface
+  ...
+
+  $IPTABLES -A INPUT -p tcp -i $INET_IFACE --dport 10025 -j QUEUE
+
 If the target host is not the host that will process the connection, i.e.
 you are using NAT on a dual-homed bastion host, then the following rules would apply.
 
@@ -92,16 +101,14 @@ you are using NAT on a dual-homed bastion host, then the following rules would a
 
   $IPTABLES -t nat -p tcp --dport 10025 -j DNAT --to $TARGET
 
+If the incoming IP address is virtual (i.e. eth0:n) then simply add the
+virtual IP address -d $VIRTUAL_DEST_IP to the above rule.
+
 	and in the FORWARD chain
   $IPTABLES $IPTABLES -A FORWARD -p tcp -o $LAN_IFACE \
 	--dport 10025 -d $TARGET -j QUEUE
   $IPTABLES $IPTABLES -A FORWARD -p tcp -o $LAN_IFACE \
 	--dport 10025 -d $TARGET -j ACCEPT
-
-If the incoming IP address is virtual (i.e. eth0:n) then simply add the
-virtual IP address to all of the above rules
-
-  -d $VIRTUAL_DEST_IP
 
 WARNING: if the dbtarpit daemon is not running, packets destined for
 port 10025 (or whatever you select) are silently dropped by IPTABLES.

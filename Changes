@@ -1,5 +1,13 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.33  Wed Jun 30 17:11:41 PDT 2004
+	Tune docs on DNAT
+	Tune QUEUE documentation
+
+	Seperate the libipq functions in tarpit.c into libipq_wrapper.c 
+	to work around a conflict between net/if.c and linux/if.c included
+	in libnet.h and libipq.h
+
 0.32  Sun Jun 27 14:01:44 PDT 2004
 	updated the documentation to include bastion host DNAT
 	instructions for setting up a tarpit connection where 

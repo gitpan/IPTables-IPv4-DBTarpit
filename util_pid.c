@@ -82,4 +82,3 @@ chk4pid(char * fpath)
 
   return(NULL);
 }
- 

@@ -23,6 +23,8 @@ fifo_func.h
 godaemon.c
 install-sh
 libdbtarpit.pod
+libipq_wrapper.c
+libipq_wrapper.h
 local_config
 ltconfig
 ltmain.sh

@@ -97,11 +97,7 @@ LogPrint(char * message)
 void
 CleanExit(int sig)
 {
-#ifdef DBTARPIT_SUPPORTED_OS_LINUX
-
-  extern struct ipq_handle * h;
-
-#endif
+  extern void * ipq_h;
 
   extern DBTPD dbtp;
   extern int logopen, unlinkOK;
@@ -114,7 +110,7 @@ CleanExit(int sig)
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
   if (h) {
-    ipq_destroy_handle(h);
+    ipq_destroy_handle((ipq_handle *)h);
     h = NULL;
   }
 

@@ -113,7 +113,10 @@ check_4_tarpit(ipq_packet_msg_t * m_pkt)
 int
 c4_verdict(int verdict, ipq_packet_msg_t * m_pkt)
 {
-  extern struct ipq_handle * h;
+  extern void * ipq_h;
+  
+  struct ipq_handle * h = ipq_h;
+
   if(h)
     ipq_set_verdict(h, m_pkt->packet_id, verdict, 0, NULL);
   if(verdict == NF_DROP)

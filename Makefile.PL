@@ -107,7 +107,7 @@ else {
   $configtxt = do 'inst/dialog.pl';
 }
 
-my $objects	= 'main.o tarpit.o util_pid.o fifo.o';
+my $objects	= 'libipq_wrapper.o main.o tarpit.o util_pid.o fifo.o';
 my $depend	= {'CTest.o'   => $lib_a,};
 my $library	= 'libdbtarpit';
 my $lib_a	= './.libs/'. $library .'.a';
@@ -141,9 +141,9 @@ WriteMakefile(
 	# Insert -I. if you add *.h files later:
     'INC'		=> "", # e.g., '-I/usr/include/other'
 	# Un-comment this if you add C files to link with later:
-    'OBJECT'		=> "CTest.o $libtest", # link all the C files too
+    'OBJECT'		=> "$libtest CTest.o", # link all the C files too
     'clean'		=> {FILES	=> "$daemon *.bs *.o *.lo *.la *~ .libs tmp* bin libipq.h libnet_version.h"},
-    'depend'		=> {'CTest.o'   => $lib_a,},
+    'depend'		=> {$depend,},
 );
 
 sub MY::post_constants {
@@ -219,12 +219,15 @@ bdbtarpit.o	: bdbtarpit.c bdbtarpit.h
 fifo.o		: fifo.c
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) fifo.c
 
-main.o		: main.c data.c godaemon.c misc.c libipq.h check.c tarpit.h \
+main.o		: libipq.h main.c data.c godaemon.c misc.c check.c tarpit.h \
 		  supported_os.h defines.h bdbtarpit.h util_pid_func.h fifo.c fifo_func.h \
 		  c_version.h
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) main.c
 
-tarpit.o	: libnet_version.h endian.h defines.h misc_func.h libipq.h tarpit.c
+libipq_wrapper.o : libipq.h libipq_wrapper.c
+	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) libipq_wrapper.c
+
+tarpit.o	: libnet_version.h endian.h defines.h misc_func.h libipq_wrapper.h tarpit.c
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) tarpit.c
 
 util_pid.o	: util_pid.c
