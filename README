@@ -108,7 +108,7 @@ DEPENDENCIES
 
       Berkeley DB 2.6.4 or better http://www.sleepycat.com/
 
-      LIBNET 1.0 http://www.packetfactory.net/libnet
+      LIBNET 1.0 or better http://www.packetfactory.net/libnet
 
       Linux kernel with iptables (libipq)
 

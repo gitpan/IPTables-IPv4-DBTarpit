@@ -1,35 +1,55 @@
 /* tarpit.c
  * 
+ * Portions copyright 2003, 2004, Michael Robinton <michael@bizsystems.com>
+ *
  * Portions adapted from LaBrea - IPHandler.c by Tom Liston <tliston@premmag.com>, Copyright (C) 2001, 2002
- * Portions adapted from  ipt_TARPIT.c by Aaron Hopkins <tools@die.net> Copyright (c) 2002
+ * Portions adapted from ipt_TARPIT.c by Aaron Hopkins <tools@die.net> Copyright (c) 2002
  *
- * Portions copyright 2003, Michael Robinton <michael@bizsystems.com>
+ ** Portions adapted from libnet_link_sockpacket.c and libnet_write.c
+ **  Copyright (c) 1998 - 2001 Mike D. Schiffman <mike@infonexus.com>
+ **  All rights reserved.
+ **
+ ** Copyright (c) 1996, 1997
+ **      The Regents of the University of California.  All rights reserved.
+ **
+ ** Redistribution and use in source and binary forms, with or without
+ ** modification, are permitted provided that: (1) source code distributions
+ ** retain the above copyright notice and this paragraph in its entirety, (2)
+ ** distributions including binary code include the above copyright notice and
+ ** this paragraph in its entirety in the documentation or other materials
+ ** provided with the distribution, and (3) all advertising materials mentioning
+ ** features or use of this software display the following acknowledgement:
+ ** `This product includes software developed by the University of California,
+ ** Lawrence Berkeley Laboratory and its contributors.'' Neither the name of
+ ** the University nor the names of its contributors may be used to endorse
+ ** or promote products derived from this software without specific prior
+ ** written permission.
+ ** THIS SOFTWARE IS PROVIDED `AS IS'' AND WITHOUT ANY EXPRESS OR IMPLIED
+ ** WARRANTIES, INCLUDING, WITHOUT LIMITATION, THE IMPLIED WARRANTIES OF
+ ** MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE.
  *
- * This program is free software; you can redistribute it and/or modify
- * it under the terms of the GNU General Public License as published by
- * the Free Software Foundation; either version 2 of the License, or
- * (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful,
- * but WITHOUT ANY WARRANTY; without even the implied warranty of
- * MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- * GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License
- * along with this program; if not, write to the Free Software
- * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
  */
 
 #include "supported_os.h"
 
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
-#include "endian.h"
+#include "libnet_version.h"
+/*	workaround for ENDIAN definition problems in libnet.h	*/
+#if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0
+# include "endian.h"
+#endif
+
 #include <libnet.h>
 #include <linux/netfilter.h>
-#include <libipq.h>
+#include "libipq.h"
 #include "defines.h"
 #include "misc_func.h"
+
+/*	define common IP header for IPV4	*/
+#ifdef LIBNET_IPV4_H
+# define LIBNET_IP_H LIBNET_IPV4_H
+#endif
 
 /*	from /usr/src/linux/include/net/ip.h
  *	"Fragment Offset" part
@@ -121,7 +141,17 @@ tarpit(void * m)
   u_char * mymac, err_buf[100];
 /* err_buf will double for the packet buffer	*/
   int c, packet_size = LIBNET_IP_H + LIBNET_ETH_H + LIBNET_TCP_H;
+
+  u_int8_t *packet = NULL;
+  u_int32_t len;
+
+
+#if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0	/* libnet version 1.0.x		*/
   struct libnet_link_int * network;
+#else							/* libnet version 1.1.x and up	*/
+  libnet_t *network;
+#endif
+
   struct sockaddr_in sin;
 
   if(h == NULL) {			/* return now if testing	*/
@@ -271,10 +301,15 @@ tarpit(void * m)
   goto verdict;
 
   sendit:
+  bwuse += LIBNET_IP_H + LIBNET_TCP_H;	/* bandwidth is incoming packet + outgoing, if any */
+
+#if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0	/* libnet version 1.0.x		*/
+
   if ((network = libnet_open_link_interface(m_pkt->indev_name, err_buf)) == NULL)
     goto logit;
 
   mymac = (u_char *)libnet_get_hwaddr(network,m_pkt->indev_name,err_buf);
+
   pktptr = err_buf;
   memset(pktptr, 0, packet_size);
 
@@ -314,8 +349,6 @@ tarpit(void * m)
   libnet_do_checksum(pktptr + LIBNET_ETH_H, IPPROTO_IP, LIBNET_TCP_H);
   libnet_do_checksum(pktptr + LIBNET_ETH_H, IPPROTO_TCP, LIBNET_TCP_H);
 
-  bwuse += LIBNET_IP_H + LIBNET_TCP_H;	/* bandwidth is incoming packet + outgoing, if any */
-
   if(Dflag)
     pkt_dump((void *)pktptr + LIBNET_ETH_H,3);
 
@@ -324,6 +357,80 @@ tarpit(void * m)
 
   libnet_close_link_interface(network);
   free(network);			/* the above close_link does not seem to release memory	*/
+
+#else							/* libnet version 1.1x and up	*/
+
+  if ((network = libnet_init(LIBNET_LINK, m_pkt->indev_name, err_buf)) == NULL)
+    goto logit;
+
+  mymac = (u_char *)libnet_get_hwaddr(network);
+
+  libnet_build_tcp(
+	dport,			/* src TCP port, swap'm	*/
+	sport,			/* destination TCP port	*/
+	ack,			/* sequence #, swap'm	*/
+	seq,			/* acknowledgement #	*/
+	flags,			/* control flags	*/
+	windowsize,		/* window size		*/
+	0,			/* checksum		*/
+	0,			/* urgent pointer	*/
+	LIBNET_TCP_H,		/* length		*/
+	NULL,			/* payload (none)	*/
+	0,			/* payload length	*/
+	network,		/* libnet context	*/
+	0);			/* new pblock		*/
+
+  libnet_build_ipv4(
+	LIBNET_IPV4_H + LIBNET_TCP_H,	/* size of packet	*/
+	0,			/* tos			*/
+	ipid,			/* IP ID		*/
+	0,			/* fragment stuff	*/
+	255,			/* TTL			*/
+	IPPROTO_TCP,		/* transport protocol	*/
+	0,			/* checksum		*/
+	ip_dst,			/* source IP, swap'm	*/
+	ip_src,			/* destination IP	*/
+	NULL,			/* payload (none)	*/
+	0,			/* payload length	*/
+	network,		/* libnet context	*/
+	0);			/* new pblock		*/
+
+  libnet_build_ethernet(
+	m_pkt->hw_addr,		/* return MAC address	*/
+  	mymac,			/* my outgoing device	*/
+	ETHERTYPE_IP,		/* ethernet protocol	*/
+	NULL,			/* payload (none)	*/
+	0,			/* length		*/
+	network,		/* libnet context	*/
+	0);			/* new pblock		*/
+
+  libnet_pblock_coalesce(network, &packet, &len);
+
+  if(Dflag && packet != NULL)
+    pkt_dump((void *)packet + LIBNET_ETH_H,3);
+
+  c = libnet_write_link(network, packet, len);
+
+  if(c == len)
+  {
+    network->stats.packets_sent++;
+    network->stats.bytes_written += c;
+    rv = 1;
+  }
+  else
+  {
+    network->stats.packet_errors++;
+    if (c > 0)
+      network->stats.bytes_written += c;
+  }
+  if(network->aligner > 0)
+    packet = packet - network->aligner;
+
+  free(packet);
+
+  libnet_destroy(network);
+
+#endif
 
   logit:
   if(msgptr == NULL)

@@ -142,7 +142,7 @@ WriteMakefile(
     'INC'		=> "", # e.g., '-I/usr/include/other'
 	# Un-comment this if you add C files to link with later:
     'OBJECT'		=> "CTest.o $libtest", # link all the C files too
-    'clean'		=> {FILES	=> "$daemon *.bs *.o *.lo *.la *~ .libs tmp* bin"},
+    'clean'		=> {FILES	=> "$daemon *.bs *.o *.lo *.la *~ .libs tmp* bin libipq.h libnet_version.h"},
     'depend'		=> {'CTest.o'   => $lib_a,},
 );
 
@@ -200,6 +200,12 @@ sub MY::top_targets {
 
 # Added for for '|. $daemon .q|'
 
+libipq.h :
+	./local_config $(CC)
+
+libnet_version.h :
+	./local_config $(CC)
+
 libtool		:
 	$(SHELL) ltconfig ./ltmain.sh
 
@@ -213,11 +219,12 @@ bdbtarpit.o	: bdbtarpit.c bdbtarpit.h
 fifo.o		: fifo.c
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) fifo.c
 
-main.o		: main.c data.c godaemon.c misc.c check.c tarpit.h supported_os.h\
-		  defines.h bdbtarpit.h util_pid_func.h fifo.c fifo_func.h c_version.h
+main.o		: main.c data.c godaemon.c misc.c libipq.h check.c tarpit.h \
+		  supported_os.h defines.h bdbtarpit.h util_pid_func.h fifo.c fifo_func.h \
+		  c_version.h
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) main.c
 
-tarpit.o	: tarpit.c endian.h defines.h misc_func.h
+tarpit.o	: libnet_version.h endian.h defines.h misc_func.h libipq.h tarpit.c
 	$(CC) -c $(INC) $(CCFLAGS) $(OPTIMIZE) tarpit.c
 
 util_pid.o	: util_pid.c

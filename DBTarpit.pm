@@ -2,7 +2,7 @@
 #
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q|char version[] = "dbtarpit 0.27, 5-21-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.31, 6-23-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
@@ -117,7 +117,7 @@ configuration information directly to your perl scripts.
 
   Berkeley DB 2.6.4 or better http://www.sleepycat.com/
 
-  LIBNET 1.0 http://www.packetfactory.net/libnet
+  LIBNET 1.0 or better http://www.packetfactory.net/libnet
 
   Linux kernel with iptables (libipq)
 

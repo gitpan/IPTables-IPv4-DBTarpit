@@ -88,7 +88,7 @@ DESCRIPTION
         the path/file database name.
 
         The home directory and database will be created if they do not
-        exist. However, the parent directories for dbhmoe must already exist
+        exist. However, the parent directories for dbhome must already exist
         and have adequate premissions.
 
                 umask   =>      007,

@@ -38,7 +38,7 @@
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
 /* for check.c			*/
-#include <libipq.h>
+#include "libipq.h"
 #include <linux/ip.h>
 #include <linux/netfilter.h>
 

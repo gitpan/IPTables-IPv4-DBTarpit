@@ -145,7 +145,7 @@ dbname will be the B<file> portion of the path/file
 database name.
 
 The home directory and database will be created if they do not exist.
-However, the parent directories for B<dbhmoe> must already exist and have
+However, the parent directories for B<dbhome> must already exist and have
 adequate premissions.
 
 	umask	=>	007,

@@ -267,10 +267,17 @@ int realMain(int argc, char **argv) {
   }
 
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
-
+#ifndef DBTARPIT_IPQ_CREATE_ARGS
+#error no dbtarpit_ipq_create_args defined
+#endif
   /* initialize the IPQUEUE interface	*/
-  if (run)
+  if (run) {
+#if DBTARPIT_IPQ_CREATE_ARGS == 1		/* old library		*/
     h = ipq_create_handle(0);
+#else						/* the newer library	*/
+    h = ipq_create_handle(0,PF_INET);
+#endif
+  }
   if (h == NULL) {
     rtn = errIPQ1;
     goto ErrorExit;

@@ -1,6 +1,6 @@
 /* check.c
  *
- * Copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003, 2004, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -21,11 +21,10 @@
 
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 
-#include "endian.h"
 #include "tarpit.h"
+#include <netinet/ip.h>
 #include <linux/netfilter.h>
-#include <libipq.h>
-#include <libnet.h>
+#include "libipq.h"
 
 #define BUFSIZE IP_MAXPACKET + sizeof(ipq_packet_msg_t)
 

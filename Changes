@@ -1,5 +1,32 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.31  Wed Jun 23 16:37:13 PDT 2004
+	updated rc.dbtarpit v0.05 to fix bug for perl v5.8.3 where unshift 
+	does not work properly for default @_
+
+	add workaround to MAKE process to find misplaced libipq.h in debian
+	distribution
+
+0.30  released only for testing -- changes included above
+
+0.29  Fri May 28 17:26:33 PDT 2004
+	Update source for tarpit.c to reflect the API change between   
+	libnet-1.0.x and libnet-1.1.x. Add code to test in make and 
+	detect which version of libnet is present; create a header 
+	file that passes necessary info to the compiler + ifdef
+	tarpit.c to use the correct API
+
+	consolidate the library test code for linbet-1.1.x and
+	iptables-1.28? into 'local_config'
+
+0.28  Mon May 24 14:12:39 PDT 2004
+	As of rev 1.28? of iptables, the call to ipq_create_handle
+	has gained an arg for support of IPv6 (not supported here).
+	Add code  to test in the make sequence and detect the newer 
+	library version; create a header file that passes necessary 
+	info to the compiler + ifdef main.c to call ipq_create_handle 
+	with one or two arguments as appropriate.
+
 0.27  Sat May 22 10:24:53 PDT 2004
 	removed compiler dependent bug when extracting version number
 	from DBTarpit.pm for C sources.
@@ -14,7 +41,7 @@ Revision history for Perl extension IPTables::IPv4::DBTarpit.
 	will reduce DB write operations to the disk under heavy load.
 
 0.24  Mon Feb  9 15:56:51 PST 2004
-        rewrite 'restart' logic in rc.dbtarpit v0.4
+	rewrite 'restart' logic in rc.dbtarpit v0.4
 
 0.23  Sat Dec  6 17:36:49 PST 2003
 	plugged a leak in libnet-1.02a
@@ -45,7 +72,7 @@ FIRST BETA RELEASE
 	add OS independent ifdef's
 
 0.19  Sat Sep 13 21:16:37 PDT 2003
-        add set_recovery function to Tools package
+	add set_recovery function to Tools package
 	add DB_RECOVER attribute to dbtp_init
 
 0.18  Wed Sep 10 09:35:10 PDT 2003
