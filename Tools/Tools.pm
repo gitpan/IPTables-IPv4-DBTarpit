@@ -5,7 +5,7 @@ use strict;
 
 use vars qw(@ISA $VERSION @EXPORT @EXPORT_OK $nf $rr $DBTP_ERROR);
 
-$VERSION = do { my @r = (q$Revision: 1.08 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 1.09 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 require Exporter;
 require DynaLoader;
@@ -617,7 +617,7 @@ character will be ignored. Each line must specify both the NAME and the
 VALUE of the pair. The specific NAME VALUE pairs are documented in the 
 Berkeley DB manual for the corresponding methods.
 
-See: http://www.sleepycat.com/docs/reftoc.html
+See: http://www.sleepycat.com/docs/ref/env/db_config.html
 
 =head1 DEPENDENCIES
 

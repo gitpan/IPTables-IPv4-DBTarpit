@@ -128,8 +128,9 @@ INSTALLATION
 
     and then by looking at the comments at the beginning of the file.
 
-    See the IPTables::IPv4::DBTarpit::Config manpage to find out how to pass
-    the DBTarpit configuration information directly to your perl scripts.
+    See the IPTables::IPv4::DBTarpit::SiteConfig manpage to find out how to
+    pass the DBTarpit configuration information directly to your perl
+    scripts.
 
 DEPENDENCIES
       libdbtarpit 0.0.0 (included with this distribution)
@@ -364,7 +365,7 @@ DATABASE CONFIGURATION FILE [optional]
     VALUE of the pair. The specific NAME VALUE pairs are documented in the
     Berkeley DB manual for the corresponding methods.
 
-    See: http://www.sleepycat.com/docs/reftoc.html
+    See: http://www.sleepycat.com/docs/ref/env/db_config.html
 
 DATABASE FORMAT
     dbtarpit and IPTables::IPv4::DBTarpit::Tools use the Berkeley DB
@@ -423,10 +424,10 @@ TOOLS
         the DBTarpit daemon. Build applications that access the database(s)
         using this module.
 
-    * IPTables::IPv4::DBTarpit::Config
-        The Config module reports the configuration of the DBTarpit bundle
-        at installation time for use in modules that need to know where
-        various components may be either at build or run time.
+    * IPTables::IPv4::DBTarpit::SiteConfig
+        The SiteConfig module reports the configuration of the DBTarpit
+        bundle at installation time for use in modules that need to know
+        where various components may be either at build or run time.
 
     * IPTables::IPv4::DBTarpit::Inst
         Inst is a small module that provide a set of methods to carry on a
@@ -440,7 +441,7 @@ TOOLS
 APPLICATIONS
     ... aahhh! now you come to the fun part.
 
-    See the MAIL::SpamCannibal manpage
+    See the Mail::SpamCannibal manpage
 
     Used with "dbtarpit", it "eats" the spammer for lunch. In less graphic
     terms, SpamCannibal is a set of tools that helps you identify the
@@ -457,7 +458,7 @@ ACKNOWLEDGEMENTS
     from the work of:
 
             ipt_TARPIT.c    by Aaron Hopkins <tools@die.net>
-      http://www.netfilter.org/documentation/pomlist/pom-summary.html#extra
+      http://ftp.die.net/pub/linux-kernel-tarpit/ipt_TARPIT.c
 
             LaBrea          by Tom Liston <tliston@premmag.com>
       http://www.hackbusters.net/LaBrea/
@@ -489,7 +490,7 @@ COPYRIGHT AND LICENCE
 SEE ALSO
     the IPTables::IPv4::DBTarpit::Tools manpage, the
     IPTables::IPv4::DBTarpit::Inst manpage, the
-    IPTables::IPv4::DBTarpit::Config manpage, the libdbtarpit manpage, the
-    dbtarpit manpage and for manual db administration, the utility
+    IPTables::IPv4::DBTarpit::SiteConfig manpage, the libdbtarpit manpage,
+    the dbtarpit manpage and for manual db administration, the utility
     bdbutil.pl
 

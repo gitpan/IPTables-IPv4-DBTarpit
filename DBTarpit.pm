@@ -2,7 +2,7 @@
 #
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q|char version[] = "dbtarpit 0.33, 6-28-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.34, 11-12-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
@@ -135,7 +135,7 @@ Read the B<rc.dbtarpit> documentation, first by typing:
 
 and then by looking at the comments at the beginning of the file.
 
-See L<IPTables::IPv4::DBTarpit::Config> to find out how to pass the DBTarpit
+See L<IPTables::IPv4::DBTarpit::SiteConfig> to find out how to pass the DBTarpit
 configuration information directly to your perl scripts.
 
 =head1 DEPENDENCIES
@@ -399,7 +399,7 @@ character will be ignored. Each line must specify both the NAME and the
 VALUE of the pair. The specific NAME VALUE pairs are documented in the 
 Berkeley DB manual for the corresponding methods.
 
-See: http://www.sleepycat.com/docs/reftoc.html
+See: http://www.sleepycat.com/docs/ref/env/db_config.html
 
 =head1 DATABASE FORMAT
 
@@ -460,9 +460,9 @@ purpose is as follows:
 The Tools module provides an easy interface to the database used by the DBTarpit
 daemon. Build applications that access the database(s) using this module.
 
-=item * IPTables::IPv4::DBTarpit::Config
+=item * IPTables::IPv4::DBTarpit::SiteConfig
 
-The Config module reports the configuration of the DBTarpit bundle at
+The SiteConfig module reports the configuration of the DBTarpit bundle at
 installation time for use in modules that need to know where various
 components may be either at build or run time.
 
@@ -482,7 +482,7 @@ For detailed information, please read the man pages for these modules.
 
 ... aahhh! now you come to the fun part.
 
-See L<MAIL::SpamCannibal>
+See L<Mail::SpamCannibal>
 
 Used with C<dbtarpit>, it "eats" the spammer for lunch. In less graphic
 terms, SpamCannibal is a set of tools that helps you identify the
@@ -500,7 +500,7 @@ There are many contributors to this project. Major code snippets came from
 the work of:
 
 	ipt_TARPIT.c 	by Aaron Hopkins <tools@die.net>
-  http://www.netfilter.org/documentation/pomlist/pom-summary.html#extra
+  http://ftp.die.net/pub/linux-kernel-tarpit/ipt_TARPIT.c
 
 	LaBrea		by Tom Liston <tliston@premmag.com>
   http://www.hackbusters.net/LaBrea/
@@ -535,7 +535,7 @@ Michael Robinton <michael@bizsystems.com>
 
 L<IPTables::IPv4::DBTarpit::Tools>,
 L<IPTables::IPv4::DBTarpit::Inst>,
-L<IPTables::IPv4::DBTarpit::Config>,
+L<IPTables::IPv4::DBTarpit::SiteConfig>,
 L<libdbtarpit>,
 L<dbtarpit> 
 and for manual db administration, the utility B<bdbutil.pl>

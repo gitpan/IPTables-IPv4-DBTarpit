@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
 
+1.09  Sat Nov 13 16:31:56 PST 2004
+	update docs
+
 1.08  Sat Oct  4 17:27:29 PDT 2003
 	update test suites to accomodate libdbtarpit change
 
