@@ -1,0 +1,84 @@
+Revision history for Perl extension IPTables::IPv4::DBTarpit.
+
+FIRST BETA RELEASE
+0.20  Mon Sep 22 18:09:36 PDT 2003
+	add OS independent ifdef's
+
+0.19  Sat Sep 13 21:16:37 PDT 2003
+        add set_recovery function to Tools package
+	add DB_RECOVER attribute to dbtp_init
+
+0.18  Wed Sep 10 09:35:10 PDT 2003
+	add -X option to drop non-TCP/IP connections addresses
+	found in tarpit db -- DoS defense mode
+
+0.17  Thu Sep  4 18:18:00 PDT 2003
+	Add code to insert outgoing MAC address into ETH-net header
+	and to correctly calculate headersize
+	Add code to log bandwidth to pipe -- forgot about that.
+	Redo the bandwidth calculations
+
+0.16  Sat Aug 30 19:25:13 PDT 2003
+	add -L switch to enable tarpiting of 127.x.x.x hosts
+	changes to main.c, data.c, check.c and test suite
+
+	Add code to insert outgoing MAC address into ETHnet header
+
+0.15  Thu Aug 28 14:04:09 PDT 2003
+	updated to IPTables::IPv4::DBTarpit::Inst version 0.05
+	corrected dialog for SpamCannibal
+
+0.14  Sun Aug  3 21:33:12 PDT 2003
+	update Makefile.PL to build libdbtarpit
+	but not dbtarpit when not on a Linux os
+
+0.13  Sat Aug  2 10:27:23 PDT 2003
+	remove bzero of DBTPD from dbtp_close, it was
+	overkill and zapped the file names for axfr in dnsbls
+
+	Update Tools to 1.04 -- include clear database function
+
+0.12  Wed Jul 30 09:44:47 PDT 2003
+	change conflicting name 'Config' to 'SiteConfig'
+
+0.11  Sat Jul 26 09:03:58 PDT 2003
+	increased size of short buffer for packets
+	to IP_MAXPACKET + sizeof(ipq_packet_msg_t)
+
+0.10  Sat Jul 19 10:28:39 PDT 2003
+	add fifo logging
+
+	add -a flag to allow the tarpit to run
+	without affecting packet flow
+
+0.09  Tue Jul 18 21:28:06 PDT 2003
+	update to use shared libdbtarpit
+
+	Released shared library 0.0.0
+
+0.08  Sat Jul 12 13:34:30 PDT 2003
+	update to use common bdbtarpit.c library
+
+0.07  Fri Jul  4 14:14:58 PDT 2003
+	modified godameon.c to do double fork
+	modified sig handler to ignore SIGHUP
+
+0.06  Mon Jun 30 13:41:06 PDT 2003
+	convert underlying db to Btree
+	with RECNO access
+
+0.05  Sun Jun 29 16:07:38 PDT 2003
+	add missing spam.lib to MANIFEST
+
+0.04  Tue Jun 17 16:53:13 PDT 2003
+	remove redundant inet_aton, inet_ntoa
+
+0.03  Thu May 29 09:14:49 PDT 2003
+	Correct man page installation directory
+
+0.02  Tue May 27 15:30:35 PDT 2003
+	released IPTables::IPv4::DBTarpit::Tools
+	version 0.07 as part of this package.
+
+0.01  Fri Apr 11 13:16:27 2003
+	initial release

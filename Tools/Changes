@@ -1,0 +1,62 @@
+Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
+
+1.06  Mon Sep 22 20:04:37 PDT 2003
+	add OS independent code to make file for linking
+
+1.05  Sat Sep 13 21:16:37 PDT 2003
+	add set_recovery function
+
+1.04  Sat Aug  2 10:47:29 PDT 2003
+	add database 'clear' function
+
+1.03  Fri Jul 18 00:21:50 PDT 2003
+	remove unneeded libtool files
+	revise relink procedure for initial install
+
+1.02  Thu Jul 17 17:34:34 PDT 2003
+	convert make file to use shared dbtarpit library
+
+1.01  Tue Jul 15 08:52:22 PDT 2003
+	extend version information to include 'patch' level
+
+1.00  Mon Jul 14 18:37:35 PDT 2003
+	rewrite to implement in 'C'
+
+0.10  Wed Jul  2 11:39:17 PDT 2003
+	add auto detection of single db name entry
+	and encapsulate in anonymous array
+
+0.09  Sun Jun 29 16:10:55 PDT 2003
+	convert underlying db to Btree
+	with RECNO access
+
+0.08  Thu May 29 09:30:22 PDT 2003
+	revise db file spec testing to allow
+	either 'dbfile' or 'txtfile', not requiring
+	or forcing 'dbfile' to always be present
+
+0.07  Tue May 27 15:30:35 PDT 2003
+	add text valued database file functions.
+	add $sw->put
+
+0.06  Wed May  7 13:30:03 PDT 2003
+	add multi-database operation
+	to "new" and all other methods
+
+0.05  Mon Apr 28 20:30:37 PDT 2003
+	install value filters to store unsigned long time
+
+0.04  Sat Apr 26 15:14:11 PDT 2003
+	convert from Net::SpamWrap::Tools
+
+0.03  Sat Mar 29 01:15:36 PST 2003
+	split out Tools.pm locking code and
+	use Fcntl into a separate module that
+	is loaded only if needed.
+
+0.02  Fri Mar 28 21:05:13 PST 2003
+	fixed apparent broken concurrent db stuff.
+	needed DB_CREATE flag in the environment.
+
+0.01  Fri Mar 21 17:14:40 PST 2003
+	alpha release
