@@ -1,5 +1,18 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.27  Sat May 22 10:24:53 PDT 2004
+	removed compiler dependent bug when extracting version number
+	from DBTarpit.pm for C sources.
+
+0.26	not released
+	altered the comments at the beginning of DBTarpit.pm
+
+0.25  Tue Apr  6 22:08:13 PDT 2004
+	remove 'sync' from bdbtarpit.c "dbtp_find_addr",
+	put a call to "dbtp_sync" in check.c, conditional on
+	the time of last sync being over 15 minutes old. This 
+	will reduce DB write operations to the disk under heavy load.
+
 0.24  Mon Feb  9 15:56:51 PST 2004
         rewrite 'restart' logic in rc.dbtarpit v0.4
 

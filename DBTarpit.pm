@@ -1,7 +1,8 @@
-# /*    all lines except VERSION are C comments
+#all lines except VERSION are C comments
+#
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q| */ char version[] = "dbtarpit 0.24, 2-9-04"; /* | =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.27, 5-21-04";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
@@ -514,4 +515,4 @@ and for manual db administration, the utility B<bdbutil.pl>
 
 =cut
 
-# end C comments */
+1;

@@ -68,6 +68,8 @@
 /* used in main -- ipq buffer	*/
 unsigned char buf[BUFSIZE];
 
+long lastsync = 0;	/* last time sync was performed	*/
+
 void
 check_no_support()
 {}
@@ -77,6 +79,7 @@ check_4_tarpit(ipq_packet_msg_t * m_pkt)
 {
   extern DBTPD dbtp;
   extern int Xflag, xflag, aflag, Lflag;
+  extern long lastsync;
   struct iphdr * iph	= (struct iphdr *)m_pkt->payload;
   int isTCP = 1;
 
@@ -90,6 +93,10 @@ check_4_tarpit(ipq_packet_msg_t * m_pkt)
     return(c4_verdict(NF_ACCEPT, m_pkt));
 
   if (dbtp_find_addr(&dbtp,DBtarpit,(void *)&(iph->saddr), m_pkt->timestamp_sec)) {	/* tarpit if found and isTCP	*/
+    if (lastsync + 900 < m_pkt->timestamp_sec) {					/* if it has been more than 15 minutes since last sync	*/
+      lastsync = m_pkt->timestamp_sec;							/* update the lastsync time	*/
+      (void)dbtp_sync(&dbtp,DBtarpit);							/* sync the database		*/
+    }
     if (xflag == 0 && isTCP)								/* and not disabled		*/
       (void)tarpit((void *)m_pkt);
 

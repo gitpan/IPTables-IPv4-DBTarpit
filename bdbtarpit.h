@@ -25,9 +25,9 @@
  */
 
 #define DBTP_MAJOR      0
-#define DBTP_MINOR      1
+#define DBTP_MINOR      2
 #define DBTP_PATCH      0
-#define DBTP_DATE       "9-30-03"
+#define DBTP_DATE       "4-5-04"
 
 /*
   So, libtool library versions are described by three integers:

@@ -459,8 +459,9 @@ dbtp_find_addr(DBTPD * dbtp, int ai, void * addr, u_int32_t timestamp)
   if (dbtp_get(dbtp,ai,addr,sizeof(void *)))	/* size of a pointer	*/
 	return(0);
 
-  (void)_dbtp_halfput(dbtp,ai,&timestamp,sizeof(timestamp));
-  dbtp->dberr = dbtp->dbaddr[ai]->sync(dbtp->dbaddr[ai],0);
+/*  (void)	*/
+    dbtp->dberr = _dbtp_halfput(dbtp,ai,&timestamp,sizeof(timestamp));
+/*  dbtp->dberr = dbtp->dbaddr[ai]->sync(dbtp->dbaddr[ai],0);	*/
   return(1);
 }
 

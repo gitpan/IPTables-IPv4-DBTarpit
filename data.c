@@ -19,7 +19,7 @@
  * Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.
 */
 
-#include "DBTarpit.pm"	/* include version number	*/
+#include "c_version.h"		/* include version number	*/
 
 char format1[] = "%li.%li.%li.%li";
 char format2[] = "%s: %s %i -> %s %i";
