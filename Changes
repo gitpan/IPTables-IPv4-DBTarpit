@@ -1,5 +1,10 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.32  Sun Jun 27 14:01:44 PDT 2004
+	updated the documentation to include bastion host DNAT
+	instructions for setting up a tarpit connection where 
+	the server is behind the bastion host
+
 0.31  Wed Jun 23 16:37:13 PDT 2004
 	updated rc.dbtarpit v0.05 to fix bug for perl v5.8.3 where unshift 
 	does not work properly for default @_
