@@ -10,6 +10,7 @@ END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
 use IPTables::IPv4::DBTarpit::Tools qw(
+	inet_aton
 	$DBTP_ERROR
 	db_strerror
 );
@@ -129,11 +130,11 @@ print "failed to open db\nnot " if $@;
 
 my $time = &next_sec();
 my %tarpit = (
-	one	=> $time -20,
-	two	=> $time -10,
-	three	=> $time -5,
-	four	=> $time -1,
-	five	=> $time,
+	inet_aton('0.0.0.1') => $time -20,
+	inet_aton('0.0.0.2') => $time -10,
+	inet_aton('0.0.0.3') => $time -5,
+	inet_aton('0.0.0.4') => $time -1,
+	inet_aton('0.0.0.5') => $time,
 );
 
 dbinsert($tool,'tarpit',\%tarpit);

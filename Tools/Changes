@@ -1,5 +1,12 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
 
+1.08  Sat Oct  4 17:27:29 PDT 2003
+	update test suites to accomodate libdbtarpit change
+
+1.07  Wed Oct  1 16:47:49 PDT 2003
+	run recovery code completed
+	export DB_NOTFOUND, DB_RUNRECOVERY
+
 1.06  Mon Sep 22 20:04:37 PDT 2003
 	add OS independent code to make file for linking
 

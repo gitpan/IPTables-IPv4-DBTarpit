@@ -1,5 +1,20 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.22  Sat Oct  4 17:27:29 PDT 2003
+	put a check in libdbtarpit to prevent keys that are not netaddrs
+	from being entered into the databases.
+
+	update the test suites to accomodate above
+
+	incorporate auto-delete of records that are not IPv4 address size
+	into 'getrecno' to prevent inadvertent database corruption
+
+0.21  Fri Oct  3 16:23:17 PDT 2003
+	clean up db recovery interface in bdbtarpit.c so it works
+
+	Unlink pid file on exit in main.c This lets the database 
+	watcher know that the task has exited cleanly.
+
 FIRST BETA RELEASE
 0.20  Mon Sep 22 18:09:36 PDT 2003
 	add OS independent ifdef's

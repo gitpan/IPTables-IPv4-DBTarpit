@@ -63,6 +63,10 @@ dbtp_close(DBTPD * dbtp)
 {
 /*	close database(s)	*/
   int ai;
+
+  if (dbtp->dbenv == NULL)
+    return;
+    
   for(ai=0; ai<DBTP_MAXdbf; ai++) {
     if (dbtp->dbaddr[ai] == NULL)
     	continue;
@@ -92,7 +96,8 @@ dbtp_init(DBTPD * dbtp, unsigned char * home, int index)
   u_int32_t info = DB_RECNUM;
   DBTYPE type = DB_BTREE;
   int mode = 0664;
-  int ai, flags;
+  int ai;
+  DB_ENV * rm_dbenv;
 
 /*
  *	OPEN / CREATE ENVIRONMENT
@@ -103,54 +108,52 @@ dbtp_init(DBTPD * dbtp, unsigned char * home, int index)
  *	operator intervention will be necessary.
  */
  
-DBTP_reopen:
-
 #if DB_VERSION_MAJOR == 2
+  if (index == DB_RUNRECOVERY)
+	goto DBTP_env_err;		/* sorry, can't do recovery unless > version 2	*/
+
   if ((dbtp->dbenv = (DB_ENV *) calloc(sizeof(DB_ENV), 1)) == NULL )
 	return (dbtp->dberr = errno);
 
   if (dbtp->dberr = db_appinit(home, NULL, dbtp->dbenv, eflags | DB_USE_ENVIRON) != 0)
   {
     free(dbtp->dbenv);
+DBTP_env_err:
     dbtp->dbenv = NULL;
     return(dbtp->dberr);
   }
 
-  
 #else	/*	DB_VERSION_MAJOR > 2	*/
+
+DBTP_reopen:
   if ((dbtp->dberr = db_env_create(&dbtp->dbenv,0)) != 0)
-  {
-	dbtp->dbenv = NULL;
-	return(dbtp->dberr);
-  }
-  if (index == DB_RUNRECOVERY)
-  {
-#ifdef IS_DB_3_0_x
-    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, NULL, 0)) != 0)
-#else	/*	> 3.0	*/
-    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, 0)) != 0)
-#endif
- return 0; /*      goto DBTP_env_err; */
-  }
-  else {
-#ifdef IS_DB_3_0_x
-    if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, NULL, eflags, mode)) != 0) {
-#else	/*	> 3.0	*/
-    if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, eflags, mode)) != 0) {
-#endif
-      (void)dbtp->dbenv->close(dbtp->dbenv, 0);
-DBTP_env_err:
-      dbtp->dbenv = NULL;
-      return(dbtp->dberr);
-    }
-  }
-#endif	/*	DB_VERSION_MAJOR > 2	*/
+	goto DBTP_env_err;
 
   if (index == DB_RUNRECOVERY) {
+#ifdef IS_DB_3_0_x
+    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, NULL, DB_FORCE)) != 0)
+#else	/*	> 3.0	*/
+    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, DB_FORCE)) != 0)
+#endif
+	goto DBTP_env_err;
+
     index = -1;
     dbtp->dbenv = NULL;
     goto DBTP_reopen;
   }
+
+#ifdef IS_DB_3_0_x
+  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, NULL, eflags, mode)) != 0) {
+#else	/*	> 3.0	*/
+  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, eflags, mode)) != 0) {
+#endif
+    (void)dbtp->dbenv->close(dbtp->dbenv, 0);
+DBTP_env_err:
+    dbtp->dbenv = NULL;
+    return(dbtp->dberr);
+  }
+
+#endif	/*	DB_VERSION_MAJOR > 2	*/
 
 /*
  *	CREATE / OPEN DATABASE's
@@ -195,6 +198,21 @@ DBTP_env_err:
   return(dbtp->dberr);
 }
 
+/*	returns 0 if addr and *addr are valid
+ *	else it returns DB_KEYEMPTY
+ */
+int
+_dbtp_set(DBTPD * dbtp, void * addr, size_t size)
+{
+  if (size != sizeof(u_int32_t) || addr == NULL || *(u_int32_t *)addr == 0)
+  	return(DB_KEYEMPTY);
+  memset(&dbtp->keydbt, 0, sizeof(DBT));
+  memset(&dbtp->mgdbt, 0, sizeof(DBT));
+  dbtp->keydbt.data = addr;
+  dbtp->keydbt.size = (u_int32_t)size;
+  return(0);
+}
+
 /* ****************************	*
  *	return 0 on success	*
  *	or the bdb error code	*
@@ -212,22 +230,14 @@ DBTP_env_err:
  *
  */
 
-void
-_dbtp_set(DBTPD * dbtp, void * addr, size_t size)
-{
-  memset(&dbtp->keydbt, 0, sizeof(DBT));
-  memset(&dbtp->mgdbt, 0, sizeof(DBT));
-  dbtp->keydbt.data = addr;
-  dbtp->keydbt.size = (u_int32_t)size;
-}
-
 int
 dbtp_get(DBTPD * dbtp, int ai, void * addr, size_t size)
 {
   if(dbtp->dbaddr[ai] == NULL)
   	return(dbtp->dberr = ENODATA);
 
-  _dbtp_set(dbtp,addr,size);  	
+  if (dbtp->dberr = _dbtp_set(dbtp,addr,size))
+  	return(dbtp->dberr); 
   return(dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, 0));
 }
 
@@ -255,11 +265,18 @@ dbtp_getrecno(DBTPD * dbtp, int ai, u_int32_t cursor)
   if(dbtp->dbaddr[ai] == NULL)
   	return(dbtp->dberr = ENODATA);
 
+REGET_by_cursor:
   memset(&dbtp->keydbt, 0, sizeof(DBT));
   memset(&dbtp->mgdbt, 0, sizeof(DBT));
   dbtp->keydbt.data = &cursor;
   dbtp->keydbt.size = (u_int32_t)sizeof(cursor);
   return(dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, DB_SET_RECNO));
+  dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, DB_SET_RECNO);
+  if (! dbtp->dberr && dbtp->keydbt.size != sizeof(INADDR_BROADCAST)) {
+    dbtp_del(dbtp,ai,dbtp->keydbt.data,dbtp->keydbt.size);
+    goto REGET_by_cursor;
+  }
+  return(dbtp->dberr);
 }
 
 /* get the number of keys or records from the target database, by index	*/
@@ -410,7 +427,8 @@ dbtp_put(DBTPD * dbtp, int ai, void * addr, size_t asize, void * data, size_t ds
   if(dbtp->dbaddr[ai] == NULL)
   	return(dbtp->dberr = ENODATA);
 
-  _dbtp_set(dbtp,addr,asize);
+  if(dbtp->dberr = _dbtp_set(dbtp,addr,asize))
+  	return(dbtp->dberr);
   return(_dbtp_halfput(dbtp,ai,data,dsize));
 }
 

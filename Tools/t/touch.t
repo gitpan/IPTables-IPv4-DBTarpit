@@ -9,7 +9,7 @@ BEGIN { $| = 1; print "1..15\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
-use IPTables::IPv4::DBTarpit::Tools;
+use IPTables::IPv4::DBTarpit::Tools qw(inet_aton);
 $TPACKAGE = 'IPTables::IPv4::DBTarpit::Tools';
 $loaded = 1;
 print "ok 1\n";
@@ -68,24 +68,24 @@ print "failed to open db\nnot " if $@;
 &ok;
 
 my %ans2 = (
-  h1	=> $test,
-  h2	=> $test + 1,
+  inet_aton('4.0.0.1') => $test,
+  inet_aton('5.0.0.2') => $test + 1,
 );
 
 ## test 3 & 4 - add items to 'tarpit', make them numeric
 print "could not update 'tarpit' $test\nnot "
-	if $sw->touch('tarpit','h1',$test);
+	if $sw->touch('tarpit',inet_aton('4.0.0.1'),$test);
 &ok;
 print "could not update 'tarpit' $test\nnot "
-	if $sw->touch('tarpit','h2',$test);
+	if $sw->touch('tarpit',inet_aton('5.0.0.2'),$test);
 &ok;
 
 ## test 5 - add real timestamp to 'tarpit'
 my $time = &next_sec();		# sync to epoch
 
-$ans2{h3} = $time;
+$ans2{inet_aton('6.0.0.3')} = $time;
 print " could not add 'tarpit' timestamp\nnot "
-	if  $sw->touch('tarpit','h3');
+	if  $sw->touch('tarpit',inet_aton('6.0.0.3'));
 &ok;
 
 ## test 6 - verify 'tarpit' update

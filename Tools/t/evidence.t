@@ -9,7 +9,7 @@ BEGIN { $| = 1; print "1..30\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
-use IPTables::IPv4::DBTarpit::Tools;
+use IPTables::IPv4::DBTarpit::Tools qw(inet_aton);
 $TPACKAGE = 'IPTables::IPv4::DBTarpit::Tools';
 $loaded = 1;
 print "ok 1\n";
@@ -139,17 +139,17 @@ foreach(0..$#spam) {
 
 ## test 3
 my %evidence = (
-  one	=> $spam[0],
-  two	=> $spam[2],
-  three	=> $spam[3],
-  four	=> $spam[4],
+  inet_aton('0.0.0.1') => $spam[0],
+  inet_aton('0.0.0.2') => $spam[2],
+  inet_aton('0.0.0.3') => $spam[3],
+  inet_aton('0.0.0.4') => $spam[4],
 );
 
 my %tarpit = (
-  one	=> 1,
-  two	=> 2,
-  three	=> 3,
-  four	=> 4,
+  inet_aton('0.0.0.1') => 1,
+  inet_aton('0.0.0.2') => 2,
+  inet_aton('0.0.0.3') => 3,
+  inet_aton('0.0.0.4') => 4,
 );
 
 ## one test cycle, test 3
@@ -171,7 +171,7 @@ print "found non-existent data in 'tarpit'\nnot "
 
 ## test 12 - check some real data
 print "failed to retrieve data '1' from 'tarpit'\nnot "
-	unless $sw->get('tarpit','one') =~ /^1$/;
+	unless $sw->get('tarpit',inet_aton('0.0.0.1')) =~ /^1$/;
 &ok;
 
 ## test 13-15 - verify database integrity
@@ -179,15 +179,15 @@ dbcheck($sw,'tarpit',\%tarpit);
 
 ## test 16 - check dummy remove
 print "removed non-existent data in 'action'\nnot "
-	if defined $sw->remove('tarpit','none');
+	if defined $sw->remove('tarpit',inet_aton('1.2.3.4'));
 &ok;
 
 ## test 17-19 - verify database integrity
 dbcheck($sw,'tarpit',\%tarpit); 
 
 ## test 20 - remove record from tarpit
-delete $tarpit{two};
-$_ = $sw->remove('tarpit','two');
+delete $tarpit{inet_aton('0.0.0.2')};
+$_ = $sw->remove('tarpit',inet_aton('0.0.0.2'));
 print "failed to delete record from 'tarpit'\nnot "
 	unless defined $_ && ! $_;
 &ok;
@@ -197,7 +197,7 @@ dbcheck($sw,'tarpit',\%tarpit);
 
 ## test 24 - attempt bogus remove from db
 print "removed non-existent data\nnot "
-	if defined $sw->remove('tarpit','none');
+	if defined $sw->remove('tarpit',inet_aton('1.2.3.4'));
 &ok;
 
 ## test 25-27 - verify tarpit database

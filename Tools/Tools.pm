@@ -3,9 +3,9 @@ use strict;
 #use warnings;
 #use Carp;
 
-use vars qw(@ISA $VERSION @EXPORT_OK $nf $DBTP_ERROR);
+use vars qw(@ISA $VERSION @EXPORT @EXPORT_OK $nf $rr $DBTP_ERROR);
 
-$VERSION = do { my @r = (q$Revision: 1.06 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 1.08 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 require Exporter;
 require DynaLoader;
@@ -13,6 +13,10 @@ use AutoLoader qw(AUTOLOAD);
 
 @ISA = qw(Exporter DynaLoader);
 
+@EXPORT = qw(
+	DB_NOTFOUND
+	DB_RUNRECOVERY
+);
 @EXPORT_OK = qw(
 	$DBTP_ERROR
 	inet_aton
@@ -27,10 +31,12 @@ $DBTP_ERROR = 0;
 bootstrap IPTables::IPv4::DBTarpit::Tools $VERSION;
 
 $nf = t_notfound();
+$rr = t_runrecovery();
 
 # Preloaded methods go here.
 
 sub DB_NOTFOUND {$nf}
+sub DB_RUNRECOVERY {$rr}
 sub DESTROY {}
 
 =head1 NAME
@@ -619,7 +625,8 @@ See: http://www.sleepycat.com/docs/reftoc.html
 
 =head1 EXPORT
 
-	none
+        DB_NOTFOUND
+        DB_RUNRECOVERY
 
 =head1 EXPORT_OK
 

@@ -329,7 +329,8 @@ DEPENDENCIES
             none
 
 EXPORT
-            none
+            DB_NOTFOUND
+            DB_RUNRECOVERY
 
 EXPORT_OK
             $DBTP_ERROR 

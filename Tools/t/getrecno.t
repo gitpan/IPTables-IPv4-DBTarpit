@@ -9,7 +9,7 @@ BEGIN { $| = 1; print "1..23\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
-use IPTables::IPv4::DBTarpit::Tools;
+use IPTables::IPv4::DBTarpit::Tools qw(inet_aton);
 $TPACKAGE = 'IPTables::IPv4::DBTarpit::Tools';
 $loaded = 1;
 print "ok 1\n";
@@ -148,11 +148,11 @@ print "failed to open db\nnot " if $@;
 
 my $time = &next_sec();
 my %tarpit = (
-	one	=> $time -20,
-	two	=> $time -10,
-	three	=> $time -5,
-	four	=> $time -1,
-	five	=> $time,
+  inet_aton('0.0.0.1') => $time -20,
+  inet_aton('0.0.0.2') => $time -10,
+  inet_aton('0.0.0.3') => $time -5,
+  inet_aton('0.0.0.4') => $time -1,
+  inet_aton('0.0.0.5') => $time,
 );
 
 dbinsert($tool,'tarpit',\%tarpit);
@@ -180,8 +180,8 @@ $time = &next_sec($time);
 ## test 12 - dummy remove of 2 records
 my $nop = 1;
 my %chkrmv = (
-	one	=> $tarpit{one},
-	two	=> $tarpit{two},
+  inet_aton('0.0.0.1') => $tarpit{inet_aton('0.0.0.1')},
+  inet_aton('0.0.0.2') => $tarpit{inet_aton('0.0.0.2')},
 );
 print "bad reported key count, ans=2, rmv=$_\nnot "
 	unless ($_ = $tool->cull('tarpit',10,\%removedkeys,$nop));
@@ -228,8 +228,8 @@ foreach(keys %removedkeys) {
 &ok;
 
 ## test 21-23 - verify tarpit data
-delete $tarpit{one};
-delete $tarpit{two};
+delete $tarpit{inet_aton('0.0.0.1')};
+delete $tarpit{inet_aton('0.0.0.2')};
 dbcheck($tool,'tarpit',\%tarpit); 
 
 $tool->closedb();

@@ -20,6 +20,7 @@
 */
 
 #include <stdio.h>
+#include <unistd.h>
 #include <sys/time.h>
 #include <signal.h>
 #include <syslog.h>
@@ -29,6 +30,7 @@
 #endif
 #include "defines.h"
 #include "fifo_func.h"
+#include "util_pid_func.h"
 
 unsigned long
 initRandGen(int seed)
@@ -102,9 +104,12 @@ CleanExit(int sig)
 #endif
 
   extern DBTPD dbtp;
-  extern int logopen;
+  extern int logopen, unlinkOK;
   /* close the database and environment	*/
   dbtp_close(&dbtp);
+
+  if(unlinkOK)
+	unlink(pidpath());	/* zap pid file	*/
 
 #ifdef DBTARPIT_SUPPORTED_OS_LINUX
 

@@ -292,6 +292,13 @@ t_notfound()
     OUTPUT:
 	RETVAL
 
+int
+t_runrecovery()
+    CODE:
+	RETVAL = DB_RUNRECOVERY;
+    OUTPUT:
+	RETVAL
+
 void
 t_bdbversion()
     PREINIT:

@@ -9,7 +9,7 @@ BEGIN { $| = 1; print "1..9\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
-use IPTables::IPv4::DBTarpit::Tools;
+use IPTables::IPv4::DBTarpit::Tools qw(inet_aton);
 $TPACKAGE = 'IPTables::IPv4::DBTarpit::Tools';
 $loaded = 1;
 print "ok 1\n";
@@ -82,18 +82,18 @@ print "failed to create txtdatabase\nnot "
 &ok;
 
 my %ans2 = (
-  h1	=> 'the quick brown fox jumped
+  inet_aton('0.0.0.1') => 'the quick brown fox jumped
 over the lazy dog',
-  h2	=> 'THE QUICK BROWN FOX JUMPED OVER
+  inet_aton('0.0.0.2') => 'THE QUICK BROWN FOX JUMPED OVER
 THE LAZY DOG 1234567890',
 );
 
 ## test 5 & 6 - add items to 'txtdatabase', make them numeric
 print "could not update 'txtdatabase'\nnot "
-	if $sw->put('txtdatabase','h1',$ans2{h1});
+	if $sw->put('txtdatabase',inet_aton('0.0.0.1'),$ans2{inet_aton('0.0.0.1')});
 &ok;
 print "could not update 'txtdatabase'\nnot "
-	if $sw->put('txtdatabase','h2',$ans2{h2});
+	if $sw->put('txtdatabase',inet_aton('0.0.0.2'),$ans2{inet_aton('0.0.0.2')});
 &ok;
 
 ## test 7 - verify 'txtdatabase' update
@@ -113,7 +113,7 @@ print "txtdatabase keys do not match, ans=$x, dump=$y\nnot "
 ## test 9 - verify data match
 foreach(keys %load) {
   if ($load{$_} ne $ans2{$_}) {
-print "$_ => $load{$_}\nNE => $ans2{$_}\n";
+print inet_aton($_)," => $load{$_}\nNE => $ans2{$_}\n";
     print "txtdatabase data does not match\nnot ";
 #    last;
   }

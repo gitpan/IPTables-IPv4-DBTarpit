@@ -36,11 +36,12 @@
 
 #include "defines.h"
 #include "bdbtarpit.h"
+#include "util_pid_func.h"
+
 #include "data.c"
 #include "godaemon.c"
 #include "misc.c"
 #include "check.c"
-#include "util_pid_func.h"
 
 DBTPD dbtp;
 short throttlesize = 10;
@@ -84,7 +85,7 @@ int realMain(int argc, char **argv) {
   sigset_t set;
   struct stat sbuf;
   int c, dflag = 0, status;
-  char * pidpath;
+  char * pidpathname;
 
   sigemptyset(&set);
   sigprocmask(SIG_SETMASK, &set, NULL);
@@ -239,7 +240,7 @@ int realMain(int argc, char **argv) {
     goto ErrorExit;
   }
 
-  if((pidpath = chk4pid(NULL)) == NULL) {	/* bail if another dbtarpit is running	*/
+  if((pidpathname = chk4pid(NULL)) == NULL) {	/* bail if another dbtarpit is running	*/
     rtn = mybuffer;
     sprintf(rtn, "%d already running", pidrun);
     goto ErrorExit;
@@ -249,7 +250,7 @@ int realMain(int argc, char **argv) {
     godaemon();
   }
 
-  savpid(pidpath);
+  savpid(pidpathname);
   
   (void)initRandGen(0);
   fillRandGen(randqueue1, RANDSIZE1);

@@ -25,9 +25,9 @@
  */
 
 #define DBTP_MAJOR      0
-#define DBTP_MINOR      0
+#define DBTP_MINOR      1
 #define DBTP_PATCH      0
-#define DBTP_DATE       "7-18-03"
+#define DBTP_DATE       "9-30-03"
 
 /*
   So, libtool library versions are described by three integers:
@@ -54,7 +54,7 @@
       only guarantee that the current interface number gets larger faster.
   
   3.  If the library source code has changed at all since the last
-      update, then increment revision (:r:a' becomes :r+1:a').
+      update, then increment revision (c:r:a becomes c:r+1:a').
   
   4.  If any interfaces have been added, removed, or changed since the
       last update, increment current, and set revision to 0.

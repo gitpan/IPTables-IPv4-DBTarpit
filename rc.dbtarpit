@@ -13,7 +13,7 @@ eval 'exec /usr/bin/perl -w -S $0 ${1+"$@"}'
 #################################################################
 
 #
-# rc.dbtarpit version 0.02, 7-30-03
+# rc.dbtarpit version 0.03, 10-4-03
 #
 # Copyright 2003, Michael Robinton <michael@bizsystems.com>
 # rc.dbtarpit is free software; you can redistribute it and/or 
@@ -138,6 +138,14 @@ die <<EOF unless -e $daemonX && -x $daemonX;
   Can not find $daemon daemon. Please check your installation
 
 ###############################################################
+EOF
+
+die <<EOF if -e $CONFIG->{DBTP_ENVHOME_DIR} .'/'. 'blockedBYwatcher';
+##############################################
+
+  startup blocked by DB watcher process
+
+##############################################
 EOF
 
 $| = 1;

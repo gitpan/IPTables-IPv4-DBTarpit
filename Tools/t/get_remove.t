@@ -9,7 +9,7 @@ BEGIN { $| = 1; print "1..24\n"; }
 END {print "not ok 1\n" unless $loaded;}
 
 use Cwd;
-use IPTables::IPv4::DBTarpit::Tools;
+use IPTables::IPv4::DBTarpit::Tools qw(inet_aton);
 $TPACKAGE = 'IPTables::IPv4::DBTarpit::Tools';
 $loaded = 1;
 print "ok 1\n";
@@ -118,18 +118,11 @@ print "failed to open db\nnot " if $@;
 
 ## test 3
 
-#my %action = (
-#  one	=> 'ONE',
-#  two	=> 'TWO',
-#  three	=> 'THREE',
-#  four	=> 'FOUR',
-#);
-
 my %tarpit = (
-  one	=> 1,
-  two	=> 2,
-  three	=> 3,
-  four	=> 4,
+  inet_aton('0.0.0.1') => 1,
+  inet_aton('0.0.0.2') => 2,
+  inet_aton('0.0.0.3') => 3,
+  inet_aton('0.0.0.4') => 4,
 );
 
 ## one test cycle, test 3
@@ -140,17 +133,17 @@ dbcheck($sw,'tarpit',\%tarpit);
 
 ## test 7 - check db exists
 print "failed and saw non-existent db 'garbage'\nnot "
-	if defined $sw->get('garbage','one');
+	if defined $sw->get('garbage',inet_aton('0.0.0.1'));
 &ok;
 
 ## test 8 - check non-existent data
 print "found non-existent data in 'tarpit'\nnot "
-	if defined $sw->get('tarpit','none');
+	if defined $sw->get('tarpit',inet_aton('1.2.3.4'));
 &ok;
 
 ## test 9 - check some real data
 print "failed to retrieve data '1' from 'tarpit'\nnot "
-	unless ($_ = $sw->get('tarpit','one')) =~ /^1$/;
+	unless ($_ = $sw->get('tarpit',inet_aton('0.0.0.1'))) =~ /^1$/;
 &ok;
 
 ## test 10-12 - verify database integrity
@@ -158,15 +151,15 @@ dbcheck($sw,'tarpit',\%tarpit);
 
 ## test 13 - check dummy remove
 print "removed non-existent data in 'action'\nnot "
-	if defined $sw->remove('tarpit','none');
+	if defined $sw->remove('tarpit',inet_aton('1.2.3.4'));
 &ok;
 
 ## test 14-16 - verify database integrity
 dbcheck($sw,'tarpit',\%tarpit); 
 
 ## test 17 - remove record from tarpit
-delete $tarpit{two};
-$_ = $sw->remove('tarpit','two');
+delete $tarpit{inet_aton('0.0.0.2')};
+$_ = $sw->remove('tarpit',inet_aton('0.0.0.2'));
 print "failed to delete record from 'tarpit'\nnot "
 	unless defined $_ && ! $_;
 &ok;
@@ -176,7 +169,7 @@ dbcheck($sw,'tarpit',\%tarpit);
 
 ## test 21 - attempt bogus remove from db
 print "removed non-existent data\nnot "
-	if defined $sw->remove('tarpit','none');
+	if defined $sw->remove('tarpit',inet_aton('1.2.3.4'));
 &ok;
 
 ## test 22-24 - verify tarpit database
