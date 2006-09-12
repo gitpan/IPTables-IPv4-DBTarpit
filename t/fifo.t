@@ -65,7 +65,7 @@ print "got: $ev => ", db_strerror($ev), ' exp: ENOENT => ',db_strerror(ENOENT())
 
 ## test 3
 print "failed to make test directory\nnot "
-	unless mkdir $dbhome;
+	unless mkdir $dbhome,0755;
 &ok;
 
 ## test 4

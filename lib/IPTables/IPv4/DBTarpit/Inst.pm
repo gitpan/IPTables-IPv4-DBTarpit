@@ -3,7 +3,7 @@ package IPTables::IPv4::DBTarpit::Inst;
 use strict;
 use vars qw($VERSION @EXPORT_OK %EXPORT_TAGS @ISA);
 
-$VERSION = do { my @r = (q$Revision: 0.05 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 0.06 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 require Exporter;
 @ISA = qw(Exporter);
 
@@ -24,7 +24,7 @@ require Exporter;
 
 =head1 NAME
 
-IPTables::IPv4::DBTarpit::Inst.pl - support for installation
+IPTables::IPv4::DBTarpit::Inst - support for installation
 
 =head1 SYNOPSIS
 
@@ -49,7 +49,6 @@ IPTables::IPv4::DBTarpit::Inst.pl - support for installation
   ask_confirm($description,$ref_to_setting);
   $option=ask_choice($question,["opt1","opt2"],"default");
   $text = make_text(\%hash);
-  ($thisfile,$backfile) = getlongpath($file);
   $rv = cpfromto($fromfile,$tofile);
   $rv = write_conf($file,$hashref,$prefix);
   dialog($name,$CONFIG,@defaults);
@@ -483,3 +482,5 @@ Michael Robinton <michael@bizsystems.com>
     SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 =cut
+
+1;

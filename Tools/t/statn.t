@@ -109,7 +109,7 @@ my %new = (
 	dbhome	=> $dbhome,
 );
 
-mkdir 'tmp';
+mkdir 'tmp',0755;
 	
 ## test 2 -  establish DB connections
 my $tool = eval {

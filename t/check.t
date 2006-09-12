@@ -67,7 +67,7 @@ sub next_sec {
 
 my $localdir = cwd();
 my $dbhome = "$localdir/tmp.dbhome";
-mkdir $dbhome unless -e $dbhome && -d $dbhome;
+mkdir $dbhome,0755 unless -e $dbhome && -d $dbhome;
 
 my $time = &next_sec();
 

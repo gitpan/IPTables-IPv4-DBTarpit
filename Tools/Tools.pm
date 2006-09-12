@@ -5,7 +5,7 @@ use strict;
 
 use vars qw(@ISA $VERSION @EXPORT @EXPORT_OK $nf $rr $DBTP_ERROR);
 
-$VERSION = do { my @r = (q$Revision: 1.09 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 1.10 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 require Exporter;
 require DynaLoader;
