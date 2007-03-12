@@ -3,31 +3,24 @@
 /* ****************************************************************************	*
  *										*
  *   Portions of this program were adapted from BerkeleyDB-0.20			*
- *   by Paul Marquess, Copyright (c) 1997-2002.					*
+ *   and BerkeleyDB-0.31 by Paul Marquess, Copyright (c) 1997-2004.		*
  *										*
- *   Copyright 2003, Michael Robinton <michael@bizsystems.com>			*
+ *     All rights reserved. This program is free software; you can 		*
+ *     redistribute it and/or modify it under the same terms as Perl		*
+ *     itself.									*
  *										*
- *   This program is free software; you can redistribute it and/or modify	*
- *   it under the terms of the GNU General Public License as published by	*
- *   the Free Software Foundation; either version 2 of the License, or		*
- *   (at your option) any later version.					*
+ *   Copyright 2003 - 2007, Michael Robinton <michael@bizsystems.com>		*
  *										*
- *   This program is distributed in the hope that it will be useful,		*
- *   but WITHOUT ANY WARRANTY; without even the implied warranty of		*
- *   MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the		*
- *   GNU General Public License for more details.				*
- *   										*
- *   You should have received a copy of the GNU General Public License		*
- *   along with this program; if not, write to the Free Software		*
- *   Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA.	*
+ *   This program is free software; you can redistribute it and/or modify       *
+ *   it under the same terms as Perl itself.					*
  *										*
  * **************************************************************************** *
  */
 
 #define DBTP_MAJOR      0
-#define DBTP_MINOR      2
+#define DBTP_MINOR      3
 #define DBTP_PATCH      0
-#define DBTP_DATE       "4-5-04"
+#define DBTP_DATE       "2-6-07"
 
 /*
   So, libtool library versions are described by three integers:
@@ -148,6 +141,22 @@ char * dbtp_strerror(int err);
 
 #if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 1)
 #  define AT_LEAST_DB_4_1
+#endif
+
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 2)
+#  define AT_LEAST_DB_4_2
+#endif
+
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 3)
+#  define AT_LEAST_DB_4_3
+#endif
+
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 4)
+#  define AT_LEAST_DB_4_4
+#endif
+
+#if DB_VERSION_MAJOR > 4 || (DB_VERSION_MAJOR == 4 && DB_VERSION_MINOR >= 5)
+#  define AT_LEAST_DB_4_5
 #endif
 
 /* END BerkeleyDB version	*/

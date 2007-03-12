@@ -1,5 +1,10 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.37  Fri Mar  12 13:27:36 PST 2007
+	add updates for compatibility up to BDB 4.5
+
+	update config.sub, config.guess
+
 0.36  Mon Sep 11 16:55:20 PDT 2006
 	'mkdir' compatability updates for perl 5.0503
 

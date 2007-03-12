@@ -2,26 +2,18 @@
  *
  *	VERSION information is in bdbtarpit.h
  *
- *  Copyright 2003, Michael Robinton <michael@bizsystems.com>
- *
- *  This program is free software; you can redistribute it and/or modify
- *  it under the terms of the GNU General Public License as published by
- *  the Free Software Foundation; either version 2 of the License, or
- *  (at your option) any later version.
- *
- *  This program is distributed in the hope that it will be useful,
- *  but WITHOUT ANY WARRANTY; without even the implied warranty of
- *  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
- *  GNU General Public License for more details.
- *
- *  You should have received a copy of the GNU General Public License
- *  along with this program; if not, write to the Free Software
- *  Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA 02111-1307, USA. 
+ *   Copyright 2003 - 2007, Michael Robinton <michael@bizsystems.com>           *
+ *                                                                              *
+ *   This program is free software; you can redistribute it and/or modify       *
+ *   it under the same terms as Perl itself.                                    *
+ *                                                                              *
+ * **************************************************************************** *
  */
 
 #include <sys/types.h>
 #include <netinet/in.h>
 #include <errno.h>
+#include <string.h>
 #include "bdbtarpit.h"
 
 char versionstring[100];
@@ -293,11 +285,15 @@ dbtp_stati(DBTPD * dbtp, int ai)
     dbtp->dberr = DB_NOTFOUND;
     return(0);
   }
-  
-#ifdef AT_LEAST_DB_3_3
+
+#ifdef AT_LEAST_DB_4_3
+  dbtp->dberr = dbtp->dbaddr[ai]->stat(dbtp->dbaddr[ai],NULL,&statistics,DB_FAST_STAT);
+#else  
+# ifdef AT_LEAST_DB_3_3
   dbtp->dberr = dbtp->dbaddr[ai]->stat(dbtp->dbaddr[ai],&statistics,DB_FAST_STAT);
-#else
+# else
   dbtp->dberr = dbtp->dbaddr[ai]->stat(dbtp->dbaddr[ai],&statistics,NULL,DB_RECORDCOUNT);
+# endif
 #endif
 
   if (dbtp->dberr)
