@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.39  Tue Sep 30 16:38:36 PDT 2008
+	Makefile.PL change to facilitate testing
+
 0.38  Wed Dec 12 12:26:31 PST 2007
 	replace $VERSION with $modVERSION in CTest.pm
 

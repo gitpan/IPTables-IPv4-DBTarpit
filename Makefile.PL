@@ -195,7 +195,7 @@ sub MY::top_targets {
   package MY;   # add dependencies for .pm and xs files
   my $inherited = shift->SUPER::top_targets(@_);
   $inherited =~ s/(\npure_all\s+::.+)/$1 $daemon README/;
-  $inherited =~ s|(\npure_all\s+::.+)config(.+)|$1./libtool SiteConfig.pm config$2|;
+  $inherited =~ s|(\npure_all\s+::.+)config(.+)|$1 libtool SiteConfig.pm config$2|;
   $inherited .= q|
 
 # Added for for '|. $daemon .q|'

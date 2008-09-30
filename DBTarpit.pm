@@ -2,7 +2,7 @@
 #
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q|char version[] = "dbtarpit 0.38, 12-12-07";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.39, 9-30-08";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
