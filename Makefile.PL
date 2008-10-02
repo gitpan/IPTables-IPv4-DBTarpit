@@ -17,6 +17,7 @@ use ExtUtils::MakeMaker;
 ###########################################################
 
 use vars qw($CONFIG);
+use Config;
 use Cwd qw(abs_path);
 require 'lib/IPTables/IPv4/DBTarpit/Inst.pm';
 import IPTables::IPv4::DBTarpit::Inst qw(:all);
@@ -24,6 +25,20 @@ import IPTables::IPv4::DBTarpit::Inst qw(:all);
 if ((caller)[1]) {
   hard_fail("Do not MAKE __PACKAGE__ as a sibling process
 it contains directory sensitive components.");
+}
+
+my $CC = $Config{ccname};
+my $OS = $Config{osname};
+
+unless ($OS =~ /linux/) {
+  print STDERR "Only works on Linux with IPTABLES\n";
+  exit 0;
+}
+# checkfor installed libnet 1.0 or greater
+my $libnetstatus = system("./local_config $CC");
+if ($libnetstatus) {
+  print STDERR "YOUR MUST INSTALL libnet VERSION 1.0.0 or greater\n";
+  exit 0;
 }
 
 my $pmname = 'DBTarpit.pm';

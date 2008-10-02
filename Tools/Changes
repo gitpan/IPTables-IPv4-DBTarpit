@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
 
+1.11  Thu Oct  2 12:30:42 PDT 2008
+	documentation update
+
 1.10  Mon Sep 11 16:55:20 PDT 2006
 	'mkdir' compability updates for perl 5.0503
 

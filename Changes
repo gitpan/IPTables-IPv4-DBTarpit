@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.40  Thu Oct  2 12:30:42 PDT 2008
+	Add CPAN tester cutouts for bad OS's and missing libs
+
 0.39  Tue Sep 30 16:38:36 PDT 2008
 	Makefile.PL change to facilitate testing
 
