@@ -1,5 +1,19 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
 
+1.13  Wed May 13 10:12:45 PDT 2009
+        enforce LANG = en_US in Makefile.PL
+
+	edit Tools.xs to quiet compiler warnings for 
+	recent versions of gcc
+
+1.12  Wed Dec 10 00:16:27 PST 2008
+	DBTPD structure for each instance is now stored in perl
+	a perl lexical with a pointer on the stack to make the
+	Tools portion of the library fully re-entrant except for
+	error code handling ... similar to unix error handling.
+
+	removed debug code accidentally left in Tool.pm
+
 1.11  Thu Oct  2 12:30:42 PDT 2008
 	documentation update
 

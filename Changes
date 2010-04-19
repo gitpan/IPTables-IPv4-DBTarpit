@@ -1,5 +1,40 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.43  Mon Apr 19 16:05:27 PDT 2010
+	Update Makefile.PL to work around \s+ bug in perl distributed with
+	some redHat versions.
+
+0.42  Wed May 13 10:12:45 PDT 2009
+	in bdbtarpit.c, clean up casting differences char/u_char and
+	add paren's for some IF statements to surpress warnings
+
+	clean up casting and unused variables throughout
+
+	removed debug line accidentally left in Tools.pm
+
+	updated local_config to find libipq.h in /usr/local/include
+
+	enforce LANG = en_US in Makefile
+
+	corrected error in t/util_pid.t that caused a false positive failure
+
+	edit godaemon.c, misc.c, main.c, tarpit.c, util_pid.c, CTest.xs
+	to eliminate warnings from newer versions of gcc
+
+
+	in Tools 1.13	------------------------------
+	enforce LANG = en_US in Makefile.PL
+
+	edit Tools.xs to quiet compiler warnings for
+	recent versions of gcc
+
+0.41  Wed Dec 10 10:06:00 PST 2008
+      In Tools v 1.12
+	DBTPD structure for each instance is now stored in perl
+	a perl lexical with a pointer on the stack to make the
+	Tools portion of the library fully re-entrant except for
+	error code handling ... similar to unix error handling.
+	
 0.40  Thu Oct  2 12:30:42 PDT 2008
 	Add CPAN tester cutouts for bad OS's and missing libs
 

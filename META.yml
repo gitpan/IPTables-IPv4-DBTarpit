@@ -1,6 +1,6 @@
 --- #YAML:1.0
 name:                IPTables-IPv4-DBTarpit
-version:             0.40
+version:             0.43
 abstract:            ~
 license:             ~
 author:              ~

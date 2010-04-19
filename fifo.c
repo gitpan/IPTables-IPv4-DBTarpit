@@ -1,6 +1,6 @@
 /* fifo.c
  *
- * Copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003-9, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -22,22 +22,23 @@
 #include <unistd.h>
 #include <errno.h>
 #include <fcntl.h>
+#include <string.h>
 
 /*
  *  struct stat {
- *	dev_t         st_dev;      /* device 
- *	ino_t         st_ino;      /* inode 
- *	mode_t        st_mode;     /* protection 
- *	nlink_t       st_nlink;    /* number of hard links 
- *	uid_t         st_uid;      /* user ID of owner 
- *	gid_t         st_gid;      /* group ID of owner 
- *	dev_t         st_rdev;     /* device type (if inode device) 
- *	off_t         st_size;     /* total size, in bytes 
- *	unsigned long st_blksize;  /* blocksize for filesystem I/O 
- *	unsigned long st_blocks;   /* number of blocks allocated 
- *	time_t        st_atime;    /* time of last access 
- *	time_t        st_mtime;    /* time of last modification 
- *	time_t        st_ctime;    /* time of last change 
+ *	dev_t         st_dev;      	device 
+ *	ino_t         st_ino;      	inode 
+ *	mode_t        st_mode;     	protection 
+ *	nlink_t       st_nlink;    	number of hard links 
+ *	uid_t         st_uid;      	user ID of owner 
+ *	gid_t         st_gid;      	group ID of owner 
+ *	dev_t         st_rdev;     	device type (if inode device) 
+ *	off_t         st_size;     	total size, in bytes 
+ *	unsigned long st_blksize;  	blocksize for filesystem I/O 
+ *	unsigned long st_blocks;   	number of blocks allocated 
+ *	time_t        st_atime;    	time of last access 
+ *	time_t        st_mtime;    	time of last modification 
+ *	time_t        st_ctime;    	time of last change 
  *  };
  *
  *  The following POSIX macros are defined to check the file type:

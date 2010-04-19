@@ -1,6 +1,6 @@
 /* check.c
  *
- * Copyright 2003, 2004, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003, 2009, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -74,6 +74,20 @@ check_no_support()
 {}
 
 int
+c4_verdict(int verdict, ipq_packet_msg_t * m_pkt)
+{
+  extern void * ipq_h;
+  
+  struct ipq_handle * h = ipq_h;
+
+  if(h)
+    ipq_set_verdict(h, m_pkt->packet_id, verdict, 0, NULL);
+  if(verdict == NF_DROP)
+    return(1);
+  return(0);
+}
+
+int
 check_4_tarpit(ipq_packet_msg_t * m_pkt)
 {
   extern DBTPD dbtp;
@@ -108,20 +122,6 @@ check_4_tarpit(ipq_packet_msg_t * m_pkt)
   }
 
   return(c4_verdict(NF_ACCEPT, m_pkt));
-}
-
-int
-c4_verdict(int verdict, ipq_packet_msg_t * m_pkt)
-{
-  extern void * ipq_h;
-  
-  struct ipq_handle * h = ipq_h;
-
-  if(h)
-    ipq_set_verdict(h, m_pkt->packet_id, verdict, 0, NULL);
-  if(verdict == NF_DROP)
-    return(1);
-  return(0);
 }
 
 #else

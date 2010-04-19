@@ -83,4 +83,5 @@ Tools/t/txtfile.t
 Tools/t/version.t
 Tools/c_includes/alt_inet_aton.c
 Tools/xs_include/miniSocket.inc
+Tools/typemap
 META.yml                                 Module meta-data (added by MakeMaker)

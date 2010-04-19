@@ -2,7 +2,7 @@
  *
  * Portions of this file are adapted from LaBrea by Tom Liston <tliston@premmag.com>, Copyright (C) 2001, 2002
  #
- * Portions copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Portions copyright 2003 - 2009, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -97,8 +97,6 @@ LogPrint(char * message)
 void
 CleanExit(int sig)
 {
-  extern void * ipq_h;
-
   extern DBTPD dbtp;
   extern int logopen, unlinkOK;
   /* close the database and environment	*/
@@ -130,7 +128,7 @@ void
 ToggleLogging(int sig) {
   extern char * fifoname;
   extern int datalog, savedatalog, oflag;
-  extern char format5[], str19[], str20[], str21[];
+  extern char str19[], str20[], str21[];
   char logbuffer[255];
   
   if((datalog == 0) && (savedatalog == 0)) {
@@ -235,7 +233,8 @@ q_handler (int sig)
 	case SIGQUIT	:
 	case SIGTERM	: CleanExit(sig);
 			  break;
-	case SIGPIPE	: SIG_IGN;
+/*	case SIGPIPE	: SIG_IGN;
+			  break;	this is a no-op	*/
   }
 }
 

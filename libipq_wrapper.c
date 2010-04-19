@@ -46,7 +46,7 @@ lipqw_indevname(void * m)
 char *
 lipqw_hw_addr(void * m)
 {
-  return ((ipq_packet_msg_t *)m)->hw_addr;
+  return (char *)((ipq_packet_msg_t *)m)->hw_addr;
 }
 
 /* return long timestamp_sec	*/

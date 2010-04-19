@@ -28,3 +28,4 @@ t/txtfile.t
 t/version.t
 c_includes/alt_inet_aton.c
 xs_include/miniSocket.inc
+typemap

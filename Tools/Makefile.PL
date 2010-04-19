@@ -196,3 +196,11 @@ install	::
 
 |;
 };
+
+sub MY::const_config {
+  package MY;
+  $inherited = shift->SUPER::const_config(@_);
+  return q|LANG=en_US
+SUPPORTED=en_US:en
+|. $inherited;
+}

@@ -5,7 +5,7 @@ use strict;
 
 use vars qw(@ISA $VERSION @EXPORT @EXPORT_OK $nf $rr $DBTP_ERROR);
 
-$VERSION = do { my @r = (q$Revision: 1.11 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
+$VERSION = do { my @r = (q$Revision: 1.12 $ =~ /\d+/g); sprintf "%d."."%02d" x $#r, @r };
 
 require Exporter;
 require DynaLoader;
@@ -37,7 +37,9 @@ $rr = t_runrecovery();
 
 sub DB_NOTFOUND {$nf}
 sub DB_RUNRECOVERY {$rr}
-sub DESTROY {}
+
+# DESTROY is XS
+#sub DESTROY {}
 
 =head1 NAME
 
@@ -219,12 +221,16 @@ sub new {
   if ($parms{recover}) {
     t_set_recovery(1);
   }
-  my $rv = t_new($tool->{dbhome},@files);
+  $tool->{_mem} = t_nmem();		# get memory allocation
+#print "LEN=",length($tool->{_mem}),"\n";
+  die "NO MEMORY AVAILABLE" unless $tool->{_mem};
+  my $rv = t_new_r($tool->{_mem},$tool->{dbhome},@files);
+#  my $rv = t_new($tool->{dbhome},@files);
   t_set_recovery(0);		# unconditional
 
 # restore umask
   umask $savmsk;
-  return undef if $rv;		# failed !
+  return undef if $rv || !defined $rv;		# failed !
 
   bless ($tool, $class);
   return $tool;
@@ -240,7 +246,7 @@ sub new {
 
 sub closedb {
   my $tool = shift;
-  t_closedb();
+  t_closedb_r($tool->{_mem});
   return undef;
 }
 
@@ -271,7 +277,7 @@ sub get {
     $DBTP_ERROR = DB_NOTFOUND();
     return undef;
   }
-  t_get($tool->{_db}->{"$db"},$addr,$tool->{_dbf});
+  t_get_r($tool->{_mem},$tool->{_db}->{"$db"},$addr,$tool->{_dbf});
 }
 
 =item * ($key,$data) = $tool->getrecno($db,$recno);
@@ -316,7 +322,7 @@ sub getrecno {
     }
     return undef;
   }
-  t_getrecno($tool->{_db}->{"$db"},$recno,$tool->{_dbf});
+  t_getrecno_r($tool->{_mem},$tool->{_db}->{"$db"},$recno,$tool->{_dbf});
 }
 
 =item * $rv = $tool->remove($db,$4byteIPaddress);
@@ -340,7 +346,7 @@ sub remove {
     $DBTP_ERROR = DB_NOTFOUND();
     return undef;
   }
-  local $_ = t_del($tool->{_db}->{"$db"},$addr);
+  local $_ = t_del_r($tool->{_mem},$tool->{_db}->{"$db"},$addr);
 }
 
 =item * $rv = $tool->put($db,$4byteIPaddress,$value);
@@ -366,7 +372,7 @@ sub put {
     $DBTP_ERROR = DB_NOTFOUND();
     return $DBTP_ERROR;
   }
-  t_put($tool->{_db}->{"$db"},$addr,$value,$tool->{_dbf});
+  t_put_r($tool->{_mem},$tool->{_db}->{"$db"},$addr,$value,$tool->{_dbf});
 }
 
 =item * $rv = $tool->touch($db,$4byteIPaddress,$timestamp);
@@ -413,7 +419,7 @@ sub sync {
     $DBTP_ERROR = DB_NOTFOUND();
     return $DBTP_ERROR;
   }
-  t_sync($tool->{_db}->{"$db"});
+  t_sync_r($tool->{_mem},$tool->{_db}->{"$db"});
 }
 
 =item * $rv = $tool->clear($db);
@@ -434,15 +440,15 @@ sub clear {
   }
   my $key;
   my $exitstatus;
-  while ($key =  t_getrecno($tool->{_db}->{"$db"},1,$tool->{_dbf})) {
-    my $status = t_del($tool->{_db}->{"$db"},$key);
+  while ($key =  t_getrecno_r($tool->{_mem},$tool->{_db}->{"$db"},1,$tool->{_dbf})) {
+    my $status = t_del_r($tool->{_mem},$tool->{_db}->{"$db"},$key);
     return $status if $status;	# bail if error
     next if defined $status;	# zero is the good answer
     $exitstatus = $DBTP_ERROR;
     last;			# must be DB_NOTFOUND which is not good
   }
   return $exitstatus if $exitstatus;
-  t_sync($tool->{_db}->{"$db"});
+  t_sync_r($tool->{_mem},$tool->{_db}->{"$db"});
 }
 
 =item * $rv = $tool->cull($db,$age,\%hash,$nop);
@@ -515,7 +521,7 @@ sub dump {
     $DBTP_ERROR = DB_NOTFOUND();
     return $DBTP_ERROR;    
   }
-  t_dump($tool->{_db}->{"$db"},$hp,$tool->{_dbf});
+  t_dump_r($tool->{_mem},$tool->{_db}->{"$db"},$hp,$tool->{_dbf});
 }
 
 =cut
@@ -540,7 +546,7 @@ sub nkeys {
     $DBTP_ERROR = DB_NOTFOUND();
     return 0;    
   }
-  t_nkeys($tool->{_db}->{"$db"});
+  t_nkeys_r($tool->{_mem},$tool->{_db}->{"$db"});
 }
 
 =item * ($string,$major,$minor,$patch)=bdbversion();

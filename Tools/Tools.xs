@@ -1,6 +1,6 @@
 /* ToolKit.xs
  *
- * Copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003 - 2009, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -30,12 +30,18 @@
 #define DBTP_U32size sizeof(u_int32_t)
 
 
-DBTPD dbtp;
+DBTPD dbtp, xempty;
+unsigned char yempty[sizeof(DBTPD)];
 
-#define _t_seterr(erp,err) \
+#define GET_DBTP(r,mptr) \
+	if (! SvROK(r) || !SvREADONLY(SvRV(r))) \
+	    XSRETURN_UNDEF; \
+	mptr = (DBTPD *) SvPVX(SvRV(r))
+
+#define _t_seterr(dbtp,erp,err) \
 	(erp) = get_sv("IPTables::IPv4::DBTarpit::Tools::DBTP_ERROR", FALSE); \
 	if ((erp) != NULL) { \
-	    (err) = dbtp.dberr; \
+	    (err) = (dbtp)->dberr; \
 	    sv_setiv((erp),(err)); \
 	}
 
@@ -61,89 +67,101 @@ t_set_recovery(val)
 	RETVAL
 
 int
-t_new(home,...)
+t_new_r(p,home,...)
+	SV * p
 	char * home
     PREINIT:
+	DBTPD * rdbtp;
 	STRLEN len;
 	int i, index;
 	SV * erp;
 	IV err;
     CODE:
-	if (items < 2) {
-	    dbtp.dberr = DB_NOTFOUND;
-	    _t_seterr(erp,err);
+	GET_DBTP(p,rdbtp);
+	if (items < 3) {
+	    rdbtp->dberr = DB_NOTFOUND;
+	    _t_seterr(rdbtp,erp,err);
 	    XSRETURN_UNDEF;
 	}
-
-	dbtp_close(&dbtp);	/* just in case	*/
-
-	for(i=1;i<items;i++) {
-	    dbtp.dbfile[i-1] = (u_char *)SvPV(ST(i),len);
+	for(i=2;i<items;i++) {
+	    rdbtp->dbfile[i-2] = (char *)SvPV(ST(i),len);
 	}
 	if (run_recovery)
 	    index = DB_RUNRECOVERY;
 	else
 	    index = -1;
-	RETVAL = dbtp_init(&dbtp,home,index);
-	_t_seterr(erp,err);
-
+	RETVAL = dbtp_init(rdbtp,(unsigned char *)home,index);
+	_t_seterr(rdbtp,erp,err);
     OUTPUT:
 	RETVAL
 
 void
-t_closedb()
+t_closedb_r(p)
+	SV * p
     PREINIT:
+	DBTPD * rdbtp;
 	SV * erp;
 	IV err;
     CODE:
-	dbtp_close(&dbtp);
-	_t_seterr(erp,err);
+	GET_DBTP(p,rdbtp);
+	dbtp_close(rdbtp);
+	_t_seterr(rdbtp,erp,err);
 
  # if ai < notstring, get U32, else get string
+
 SV *
-t_get(ai,addr,notstring)
+t_get_r(p,ai,addr,notstring)
+	SV * p
 	int ai
 	SV * addr
 	int notstring
     PREINIT:
+	DBTPD * rdbtp;
 	STRLEN len;
 	void * adp;
 	int rv;
 	SV * val, * erp;
 	IV err;
     PPCODE:
+	GET_DBTP(p,rdbtp);
 	adp = (void *)SvPV(addr,len);
-	rv = dbtp_get(&dbtp,ai,adp,len);
-	_t_seterr(erp,err);
+	rv = dbtp_get(rdbtp,ai,adp,len);
+	_t_seterr(rdbtp,erp,err);
 
 	if (rv == DB_NOTFOUND)
 	    XSRETURN_UNDEF;
 	else if (rv)
 	    XSRETURN_IV(0);
 
-	if (ai < notstring && dbtp.mgdbt.size == DBTP_U32size) {
-	    val = newSViv(*(U32 *)dbtp.mgdbt.data);
-	    sv_setuv(val,*(U32 *)dbtp.mgdbt.data);
+	if (ai < notstring && rdbtp->mgdbt.size == DBTP_U32size) {
+	    val = newSViv(*(U32 *)rdbtp->mgdbt.data);
+	    sv_setuv(val,*(U32 *)rdbtp->mgdbt.data);
 	    XPUSHs(sv_2mortal(val));
 	}
 	else
-	    XPUSHs(sv_2mortal(newSVpv(dbtp.mgdbt.data,dbtp.mgdbt.size)));
+	    XPUSHs(sv_2mortal(newSVpv(rdbtp->mgdbt.data,rdbtp->mgdbt.size)));
 	XSRETURN(1);
+
+ # not reached - quiet compiler
+	RETVAL = val;
 
 
  # if ai < notstring, get U32, else get string
 void
-t_getrecno(ai,cursor,notstring)
+t_getrecno_r(p,ai,cursor,notstring)
+	SV * p
 	int ai
 	U32 cursor
 	int notstring
     PREINIT:
+	DBTPD * rdbtp;
 	int rv;
 	SV * val, * erp;
 	IV err;
     PPCODE:
-	rv = dbtp_getrecno(&dbtp,ai,cursor);
-	_t_seterr(erp,err);
+	GET_DBTP(p,rdbtp);
+	rv = dbtp_getrecno(rdbtp,ai,cursor);
+	_t_seterr(rdbtp,erp,err);
 	if (rv) {
 	    if (GIMME == G_ARRAY)
 		XSRETURN_EMPTY;
@@ -151,34 +169,37 @@ t_getrecno(ai,cursor,notstring)
 		XSRETURN_UNDEF;
 	}
 
-	XPUSHs(sv_2mortal(newSVpv(dbtp.keydbt.data,dbtp.keydbt.size)));
+	XPUSHs(sv_2mortal(newSVpv(rdbtp->keydbt.data,rdbtp->keydbt.size)));
 
 	if (GIMME == G_ARRAY) {
-	    if (ai < notstring && dbtp.mgdbt.size == DBTP_U32size) {
-		val = newSViv(*(U32 *)dbtp.mgdbt.data);
-		sv_setuv(val,*(U32 *)dbtp.mgdbt.data);
+	    if (ai < notstring && rdbtp->mgdbt.size == DBTP_U32size) {
+		val = newSViv(*(U32 *)rdbtp->mgdbt.data);
+		sv_setuv(val,*(U32 *)rdbtp->mgdbt.data);
 		XPUSHs(sv_2mortal(val));
 	    }
 	    else
-		XPUSHs(sv_2mortal(newSVpv(dbtp.mgdbt.data,dbtp.mgdbt.size)));
+		XPUSHs(sv_2mortal(newSVpv(rdbtp->mgdbt.data,rdbtp->mgdbt.size)));
 	    XSRETURN(2);
 	}
 	XSRETURN(1);
 
 int
-t_del(ai,addr)
+t_del_r(p,ai,addr)
+	SV * p
 	int ai
 	SV * addr
     PREINIT:
+	DBTPD * rdbtp;
 	STRLEN len;
 	void * adp;
 	int rv;
 	SV * erp;
 	IV err;
     CODE:
+	GET_DBTP(p,rdbtp);
 	adp = (void *)SvPV(addr,len);
-	rv = dbtp_del(&dbtp,ai,adp,len);
-	_t_seterr(erp,err);
+	rv = dbtp_del(rdbtp,ai,adp,len);
+	_t_seterr(rdbtp,erp,err);
 
 	if (rv == DB_NOTFOUND)
 	    XSRETURN_UNDEF;
@@ -188,20 +209,23 @@ t_del(ai,addr)
 	RETVAL
 
  # if ai < notstring, put U32, else put string
+
 int
-t_put(ai,addr,val,notstring)
+t_put_r(p,ai,addr,val,notstring)
+	SV * p
 	int ai
 	SV * addr
 	SV * val
 	int notstring
     PREINIT:
+	DBTPD * rdbtp;
 	STRLEN alen, vlen;
 	void * adp, * vlp;
-	int rv;
 	SV * erp;
 	IV err;
 	U32 ival;
     CODE:
+	GET_DBTP(p,rdbtp);
 	adp = (void *)SvPV(addr,alen);
 
  # check for IV == number
@@ -213,20 +237,23 @@ t_put(ai,addr,val,notstring)
 	else
 	    vlp = (void *)SvPV(val,vlen);
 
-	RETVAL = dbtp_put(&dbtp,ai,adp,alen,vlp,vlen);
-	_t_seterr(erp,err);
+	RETVAL = dbtp_put(rdbtp,ai,adp,alen,vlp,vlen);
+	_t_seterr(rdbtp,erp,err);
     OUTPUT:
 	RETVAL
 
 int
-t_sync(ai)
+t_sync_r(p,ai)
+	SV * p
 	int ai;
     PREINIT:
+	DBTPD * rdbtp;
 	SV * erp;
 	IV err;
     CODE:
-	RETVAL = dbtp_sync(&dbtp,ai);
-	_t_seterr(erp,err);
+	GET_DBTP(p,rdbtp);
+	RETVAL = dbtp_sync(rdbtp,ai);
+	_t_seterr(rdbtp,erp,err);
     OUTPUT:
 	RETVAL
 
@@ -240,20 +267,23 @@ t_db_strerror(err)
 
  # if ai < notstring, put U32, else put string
 int
-t_dump(ai,hp,notstring)
+t_dump_r(p,ai,hp,notstring)
+	SV * p
 	int ai
 	SV * hp
 	int notstring
     PREINIT:
+	DBTPD * rdbtp;
 	U32 cursor;
 	HV * hash;
 	int rv;
 	SV * val, * erp;
 	IV err;
     CODE:
+	GET_DBTP(p,rdbtp);
 	if (!SvROK(hp)) {
-	    rv = dbtp.dberr = DB_NOTFOUND;
-	    _t_seterr(erp,err);
+	    rv = rdbtp->dberr = DB_NOTFOUND;
+	    _t_seterr(rdbtp,erp,err);
 	    cursor = 0;
 	}
 	else {
@@ -263,21 +293,21 @@ t_dump(ai,hp,notstring)
 	    rv = 0;
 	}
 	while(cursor) {
-	    rv = dbtp_getrecno(&dbtp,ai,cursor++);
+	    rv = dbtp_getrecno(rdbtp,ai,cursor++);
 	    if (rv) {
 		if(rv == DB_NOTFOUND && cursor != 1)
-		    rv = dbtp.dberr = 0;
-		_t_seterr(erp,err);
+		    rv = rdbtp->dberr = 0;
+		_t_seterr(rdbtp,erp,err);
 		break;
 	    }
-	    if (ai < notstring  && dbtp.mgdbt.size == DBTP_U32size) {
-		val = newSViv(*(U32 *)dbtp.mgdbt.data);
-		sv_setuv(val,*(U32 *)dbtp.mgdbt.data);
+	    if (ai < notstring  && rdbtp->mgdbt.size == DBTP_U32size) {
+		val = newSViv(*(U32 *)rdbtp->mgdbt.data);
+		sv_setuv(val,*(U32 *)rdbtp->mgdbt.data);
 	    }
 	    else
-		val = newSVpv(dbtp.mgdbt.data,dbtp.mgdbt.size);
+		val = newSVpv(rdbtp->mgdbt.data,rdbtp->mgdbt.size);
 
-	    (void)hv_store(hash,(char *)dbtp.keydbt.data,dbtp.keydbt.size,val,0);
+	    (void)hv_store(hash,(char *)rdbtp->keydbt.data,rdbtp->keydbt.size,val,0);
  #	    SvREFCNT_dec(val);
 	}
 
@@ -328,15 +358,88 @@ t_libversion()
 	XSRETURN(1);
 
 U32
-t_nkeys(ai)
+t_nkeys_r(p,ai)
+	SV * p
 	int ai
     PREINIT:
+	DBTPD * rdbtp;
 	SV * erp;
 	IV err;
     CODE:
-	RETVAL = dbtp_stati(&dbtp,ai);
-	_t_seterr(erp,err);
-	if (dbtp.dberr)
+	GET_DBTP(p,rdbtp);
+	RETVAL = dbtp_stati(rdbtp,ai);
+	_t_seterr(rdbtp,erp,err);
+	if (rdbtp->dberr)
 	    XSRETURN_UNDEF;
     OUTPUT:
 	RETVAL
+
+
+
+ #        NI_NEW_IFREQ_REF(rv,sv,stash,ifr) \
+ #       sv = newSV (0); \
+ #       rv = sv_2mortal (newRV_noinc (sv)); \
+ #       sv_bless (rv, stash); \
+ #       SvGROW (sv, _SIZEOF_ADDR_IFREQ(*ifr)); \
+ #       SvREADONLY_on (sv); \
+ #       XPUSHs (rv);
+
+
+void
+t_nmem()
+    PREINIT:
+	SV * rv, * sv;
+    PPCODE:
+ # make an empty DBTPD
+	sv = newSV(sizeof(DBTPD));
+	rv = sv_2mortal(newRV_noinc(sv));
+	SvREADONLY_on(sv);
+	Zero(SvPVX(sv), 1, DBTPD);
+	XPUSHs(rv);
+	XSRETURN(1);
+
+ # Save the next two routines in case we decide to switch to using malloc and free
+ # void
+ # t_rmem(p)
+ #	SV * p
+ #   PREINIT:
+ #	DBTPD * mptr;
+ #	AV * msav;
+ #	I32 idx, end;
+ #	unsigned char * mp;
+ #	SV ** pp;
+ #   CODE:
+ #	GET_DBTP(p,mptr);
+ #	Safefree(mptr);
+ #	msav = get_av("_IPTDBTTools_memcache",0);
+ #	if ((msav != NULL) && ((end = av_len(msav)) >= 0)) {
+ #	    for (idx = 0; idx <= end; idx++) {
+ #		pp = av_fetch(msav,idx,0);
+ #		if ((pp != NULL) && (SvIOK(*pp)) && (mptr == (DBTPD * )SvIV(*pp))) {
+ #		    av_delete(msav,idx,0);
+ #		    break;
+ #		}
+ #	    }
+ #	}
+ #
+ #void
+ # DESTROY(...)
+ #   PREINIT:
+ #	DBTPD * mptr;
+ #	AV * msav;
+ #	I32 idx = 0, end;
+ #	SV ** pp;
+ #   CODE:
+ #	msav = get_av("_IPTDBTTools_memcache",0);
+ #	if ((msav != NULL) && ((end = av_len(msav)) >= 0)) {
+ #	    while (idx <= end) {
+ #		pp = av_fetch(msav,idx,0);
+ #		if ((pp != NULL) && (SvIOK(*pp))) {
+ #		    mptr = (DBTPD * )SvIV(*pp);
+ #		    Safefree(mptr);
+ #		}
+ #		idx += 1;
+ #	    }
+ #	    av_undef(msav);
+ #	}
+ #

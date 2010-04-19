@@ -2,7 +2,7 @@
  *
  *	VERSION information is in bdbtarpit.h
  *
- *   Copyright 2003 - 2007, Michael Robinton <michael@bizsystems.com>           *
+ *   Copyright 2003 - 2009, Michael Robinton <michael@bizsystems.com>           *
  *                                                                              *
  *   This program is free software; you can redistribute it and/or modify       *
  *   it under the same terms as Perl itself.                                    *
@@ -14,6 +14,7 @@
 #include <netinet/in.h>
 #include <errno.h>
 #include <string.h>
+#include <stdlib.h>
 #include "bdbtarpit.h"
 
 char versionstring[100];
@@ -89,7 +90,6 @@ dbtp_init(DBTPD * dbtp, unsigned char * home, int index)
   DBTYPE type = DB_BTREE;
   int mode = 0664;
   int ai;
-  DB_ENV * rm_dbenv;
 
 /*
  *	OPEN / CREATE ENVIRONMENT
@@ -123,9 +123,9 @@ DBTP_reopen:
 
   if (index == DB_RUNRECOVERY) {
 #ifdef IS_DB_3_0_x
-    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, NULL, DB_FORCE)) != 0)
+    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, (char *)home, NULL, DB_FORCE)) != 0)
 #else	/*	> 3.0	*/
-    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, home, DB_FORCE)) != 0)
+    if ((dbtp->dberr = dbtp->dbenv->remove(dbtp->dbenv, (char *)home, DB_FORCE)) != 0)
 #endif
 	goto DBTP_env_err;
 
@@ -135,9 +135,9 @@ DBTP_reopen:
   }
 
 #ifdef IS_DB_3_0_x
-  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, NULL, eflags, mode)) != 0) {
+  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, (char *)home, NULL, eflags, mode)) != 0) {
 #else	/*	> 3.0	*/
-  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, home, eflags, mode)) != 0) {
+  if ((dbtp->dberr = dbtp->dbenv->open(dbtp->dbenv, (char *)home, eflags, mode)) != 0) {
 #endif
     (void)dbtp->dbenv->close(dbtp->dbenv, 0);
 DBTP_env_err:
@@ -228,7 +228,7 @@ dbtp_get(DBTPD * dbtp, int ai, void * addr, size_t size)
   if(dbtp->dbaddr[ai] == NULL)
   	return(dbtp->dberr = ENODATA);
 
-  if (dbtp->dberr = _dbtp_set(dbtp,addr,size))
+  if ((dbtp->dberr = _dbtp_set(dbtp,addr,size)))
   	return(dbtp->dberr); 
   return(dbtp->dberr = dbtp->dbaddr[ai]->get(dbtp->dbaddr[ai], NULL, &dbtp->keydbt, &dbtp->mgdbt, 0));
 }
@@ -422,10 +422,10 @@ _dbtp_halfput(DBTPD * dbtp, int ai, void * data, size_t size)
 int
 dbtp_put(DBTPD * dbtp, int ai, void * addr, size_t asize, void * data, size_t dsize)
 {
-  if(dbtp->dbaddr[ai] == NULL)
+  if (dbtp->dbaddr[ai] == NULL)
   	return(dbtp->dberr = ENODATA);
 
-  if(dbtp->dberr = _dbtp_set(dbtp,addr,asize))
+  if ((dbtp->dberr = _dbtp_set(dbtp,addr,asize)))
   	return(dbtp->dberr);
   return(_dbtp_halfput(dbtp,ai,data,dsize));
 }

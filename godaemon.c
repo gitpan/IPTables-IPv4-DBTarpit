@@ -1,6 +1,6 @@
 /* godaemon.c
  *
- * Copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003-2009, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -25,6 +25,7 @@
 static __inline void godaemon(void) {
   extern char devnull[];
   pid_t pid;
+  int dn, discard;
 
   if ((pid = fork()) != 0)
     exit(0);			/* parent exits		*/
@@ -36,13 +37,13 @@ static __inline void godaemon(void) {
   if ((pid = fork()) != 0)	/* double fork		*/
     exit(0);			/* 1st child exits	*/
 
-  chdir("/");
+  discard = chdir("/");
   /* redirect stdin/stdout/stderr to /dev/null */
   close(0);
   close(1);
   close(2);
-  open(devnull, O_RDWR);
-  dup(0);
-  dup(0);
-  return;
+  dn = open(devnull, O_RDWR);
+  dup2(dn,0);
+  dup2(dn,1);
+  dup2(dn,2);
 }

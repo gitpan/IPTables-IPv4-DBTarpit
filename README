@@ -51,6 +51,11 @@ INSTALLATION
       make test
       make install
 
+    On some platforms it appears that ldconfig fails to link the new
+    library. To do so manually, type:
+
+      ldconfig -n /usr/local/lib
+
     To restore the default directory configurations type:
 
       rm config.db
@@ -471,7 +476,7 @@ AUTHOR
     Michael Robinton <michael@bizsystems.com>
 
 COPYRIGHT AND LICENCE
-      Copyright 2003 - 2008, Michael Robinton <michael@bizsystems.com>
+      Copyright 2003 - 2009, Michael Robinton <michael@bizsystems.com>
  
       This program is free software; you can redistribute it and/or modify
       it under the terms of the GNU General Public License as published by

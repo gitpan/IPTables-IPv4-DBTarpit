@@ -1,6 +1,6 @@
 /* tarpit.c
  * 
- * Portions copyright 2003, 2004, Michael Robinton <michael@bizsystems.com>
+ * Portions copyright 2003, 2009, Michael Robinton <michael@bizsystems.com>
  *
  * Portions adapted from LaBrea - IPHandler.c by Tom Liston <tliston@premmag.com>, Copyright (C) 2001, 2002
  * Portions adapted from ipt_TARPIT.c by Aaron Hopkins <tools@die.net> Copyright (c) 2002
@@ -41,6 +41,7 @@
 # include "endian.h"
 #endif
 
+#include <time.h>
 #include <libnet.h>
 #include <linux/netfilter.h>
 #include "defines.h"
@@ -129,26 +130,24 @@ tarpit(void * m)
   extern int oflag, Oflag, kflag, Dflag, pflag, Pflag, star;
   extern short throttlesize;
   extern char mybuffer[], mybuffer2[], strstar[], format1[], format2[], format8[], format9[];
-  extern char msg1[], msg2[], msg3[], msg4[], msg4a[], msg5[], msg6[], strlf[];
+  extern char msg1[], msg2[], msg3[], msg4[], msg4a[], msg5[], strlf[];
   extern char * fifoname;
 
 /* locals */
-  u_char bwuse = 0, flags, responsetype = 0, * pktptr;
+  u_char bwuse = 0, flags, * pktptr;
   char src_addr[20], dst_addr[20], tnow[60], *msgptr = NULL;
   u_int32_t ip_src, ip_dst, seq, ack, ack_out;
-  u_int boolLinuxWinProbe = 0, rv = 0, pktsize = 0, status, i, fd;
+  u_int boolLinuxWinProbe = 0, rv = 0, i;
   short windowsize;
   u_short headersize, sport = 0, dport = 0, ipid, tlength;
   struct iphdr * iph    = (struct iphdr *)lipqw_payload(m);
   struct libnet_tcp_hdr * tcph;
   u_char * mymac, err_buf[100];
 /* err_buf will double for the packet buffer	*/
-  int c, packet_size = LIBNET_IP_H + LIBNET_ETH_H + LIBNET_TCP_H;
-
+  int c, packet_size;
   u_int8_t *packet = NULL;
   u_int32_t len;
   long tss;
-
 
 #if DBTARPIT_LNV_HIGH == 1 && DBTARPIT_LNV_MID == 0	/* libnet version 1.0.x		*/
   struct libnet_link_int * network;
@@ -156,7 +155,8 @@ tarpit(void * m)
   libnet_t *network;
 #endif
 
-  struct sockaddr_in sin;
+  packet_size = LIBNET_IP_H + LIBNET_ETH_H + LIBNET_TCP_H;
+
 
   if(ipq_h == NULL) {			/* return now if testing	*/
     trace_tarpit = dummy_tarpit;	/* mark transit through this routine    */
@@ -364,7 +364,7 @@ tarpit(void * m)
 
 #else							/* libnet version 1.1x and up	*/
 
-  if ((network = libnet_init(LIBNET_LINK, lipqw_indevname(m), err_buf)) == NULL)
+  if ((network = libnet_init(LIBNET_LINK, lipqw_indevname(m), (char *)err_buf)) == NULL)
     goto logit;
 
   mymac = (u_char *)libnet_get_hwaddr(network);
@@ -400,13 +400,13 @@ tarpit(void * m)
 	0);			/* new pblock		*/
 
   libnet_build_ethernet(
-	lipqw_hw_addr(m),	/* return MAC address	*/
-  	mymac,			/* my outgoing device	*/
-	ETHERTYPE_IP,		/* ethernet protocol	*/
-	NULL,			/* payload (none)	*/
-	0,			/* length		*/
-	network,		/* libnet context	*/
-	0);			/* new pblock		*/
+	(u_char *)lipqw_hw_addr(m),	/* return MAC address	*/
+  	mymac,				/* my outgoing device	*/
+	ETHERTYPE_IP,			/* ethernet protocol	*/
+	NULL,				/* payload (none)	*/
+	0,				/* length		*/
+	network,			/* libnet context	*/
+	0);				/* new pblock		*/
 
   libnet_pblock_coalesce(network, &packet, &len);
 
@@ -473,6 +473,8 @@ tarpit(void * m)
 
   verdict:
   return(rv);
+/* not reached, silence compiler warning        */
+  pktptr = err_buf;
 }
 
 #endif	/* DBTARPIT_SUPPORTED_OS_LINUX	*/

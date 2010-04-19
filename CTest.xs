@@ -1,6 +1,6 @@
 /* CTest.xs
  *
- * Copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Copyright 2003-9, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -96,6 +96,16 @@ typedef union {
 
   unsigned long rarry[10];   
 
+/*	declarations		*/
+
+  void fillRandGen(unsigned long * rq, int size);
+  int realMain(int argc, char **argv);
+  void set_signals (void);
+  unsigned long initRandGen(int seed);
+  int check_4_tarpit(ipq_packet_msg_t * m_pkt);
+  void LogPrint(char * message);
+
+
 unsigned long *
 fillrandom()
 {
@@ -139,7 +149,6 @@ mydb_dump(int secondary)
   dbtU key, data;
   int status;
   u_int32_t cursor = 1;
-  DBC * dbcp;
   struct in_addr inadr;
 
   if (secondary) {
@@ -154,7 +163,7 @@ mydb_dump(int secondary)
   key.dbt.size = sizeof(cursor);
   while((status = dbp->get(dbp, NULL, &key.dbt, &data.dbt, DB_SET_RECNO)) == 0) {
     inadr.s_addr = (in_addr_t)(*key.naddr);
-    printf("%16s => %10ld\n", inet_ntoa(inadr), *data.val);
+    printf("%16s => %10ld\n", inet_ntoa(inadr), (long int)*data.val);
     key.dbt.data = &cursor;
     key.dbt.size = sizeof(cursor);
     cursor++;
@@ -170,7 +179,6 @@ my_helpinit(DBTPD * dbtp, int ai, char * addr)
   dbtp->dbfile[ai] = addr;
 }
 
-
 MODULE = IPTables::IPv4::DBTarpit::CTest	PACKAGE = IPTables::IPv4::DBTarpit::CTest
 PROTOTYPES: DISABLE
 
@@ -178,16 +186,18 @@ int
 t_pidrun()
     CODE:
 	RETVAL = (int)pidrun;
+    OUTPUT:
+	RETVAL
 
 void
 t_savpid(path)
-	unsigned char * path
+	char * path
     CODE:
 	savpid(path);
 
 void
 t_chk4pid(path)
-	unsigned char * path
+	char * path
     PREINIT:
 	SV * out;
     PPCODE:
@@ -221,7 +231,7 @@ t_main(...)
 	extern int opterr;
     CODE:
 	if (items > 20) {
-	    RETVAL = 0;
+	    i = 0;
 	} else {
 	    for (i=0; i < items; i++)
 	    {
@@ -348,7 +358,9 @@ t_findaddr(addr,timestamp)
 	unsigned char * addr
 	U32 timestamp
     CODE:
-	dbtp_find_addr(&dbtp,DBtarpit,(void *)addr,timestamp);
+	RETVAL = dbtp_find_addr(&dbtp,DBtarpit,(void *)addr,timestamp);
+    OUTPUT:
+	RETVAL
 
 void
 t_saveaddr(addr, timestamp)
@@ -420,6 +432,7 @@ t_errors()
 	XSRETURN(7);
 
  # if ai < notstring, get U32, else get string
+
 SV *
 t_get(ai,addr,notstring)
 	int ai
@@ -429,8 +442,7 @@ t_get(ai,addr,notstring)
 	STRLEN len;
 	void * adp;
 	int rv;
-	SV * val, * erp;
-	IV err;
+	SV * val;
     PPCODE:
 	adp = (void *)SvPV(addr,len);
 /*	rv = dbtp_get(&dbtp,ai,adp,len); */
@@ -449,6 +461,8 @@ t_get(ai,addr,notstring)
 	else
 	    XPUSHs(sv_2mortal(newSVpv(dbtp.mgdbt.data,dbtp.mgdbt.size)));
 	XSRETURN(1);
+ # not reached - silence compiler warning
+	RETVAL = val;
 
 
  # if ai < notstring, get U32, else get string
@@ -459,8 +473,7 @@ t_getrecno(ai,cursor,notstring)
 	int notstring
     PREINIT:
 	int rv;
-	SV * val, * erp;
-	IV err;
+	SV * val;
     PPCODE:
  #	rv = dbtp_getrecno(&dbtp,ai,cursor);
 	rv = dbtp_readOne(&dbtp,1,ai,&cursor,0);

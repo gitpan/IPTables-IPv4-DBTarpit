@@ -7,7 +7,7 @@
  * THIS PROGRAM REQUIRES an installed linux kernel SOURCE
  * configured with IPTABLES and NETFILTER
  *
- * Portions copyright 2003, Michael Robinton <michael@bizsystems.com>
+ * Portions copyright 2003 - 2009, Michael Robinton <michael@bizsystems.com>
  *
  * This program is free software; you can redistribute it and/or modify
  * it under the terms of the GNU General Public License as published by
@@ -75,19 +75,13 @@ static void __inline Usage(void) {
   CleanExit(0);
 }
 
-int main(int argc, char **argv) {
-  check_no_support();
-  run = 1;
-  return(realMain(argc,argv));
-}
-
 int realMain(int argc, char **argv) {
   sigset_t set;
   struct stat sbuf;
-  struct ipq_handle * h;
   int c, dflag = 0, status;
   char * pidpathname;
-
+  struct ipq_handle * h = NULL;
+  
   sigemptyset(&set);
   sigprocmask(SIG_SETMASK, &set, NULL);
   set_signals();
@@ -262,7 +256,7 @@ int realMain(int argc, char **argv) {
   LogPrint(diag13);
 
   /* initialize the database interface	*/
-  if ((status = dbtp_init(&dbtp,dbhome,-1))) {
+  if ((status = dbtp_init(&dbtp,(unsigned char *)dbhome,-1))) {
     rtn = db_strerror(status);
     goto ErrorExit;
   }
@@ -321,4 +315,10 @@ ErrorExit:
   fprintf(stderr, err25, rtn);
   CleanExit(0);
   return(0);
+}
+
+int main(int argc, char **argv) {
+  check_no_support();
+  run = 1;
+  return(realMain(argc,argv));
 }
