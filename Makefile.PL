@@ -162,17 +162,28 @@ WriteMakefile(
 );
 
 sub MY::post_constants {
-  my $post_constants = q|
+  my $pod2text = $Config{scriptdirexp} .'/pod2text';
+  my $post_constants;
+  if (-e $pod2text) {
+    $post_constants = q| 
+MY_POD2TEXT = |. $pod2text .q|
 LDTool = ./libtool --mode=link $(LD) -g -s
 |. $configtxt .q|
 |;
+  } else {
+        $post_constants = q| 
+MY_POD2TEXT = echo "perl distro missing 'pod2text' to convert "
+LDTool = ./libtool --mode=link $(LD) -g -s
+|. $configtxt .q|
+|;
+  }
 }
 
 sub MY::postamble {
   package MY;
   my $postamble = q|
 README  : DBTarpit.pm
-	pod2text DBTarpit.pm > README
+	@$(MY_POD2TEXT) DBTarpit.pm > README
 
 .PHONY: clean_CTest relink_subdirs $(DBTP_DAEMON_DIR)/|. $daemon_real .q|
 

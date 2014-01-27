@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit::Tools
 
+1.14  Mon Jan 27 11:59:58 PST 2014
+        modify Makefile.PL to bypass missing 'pod2text'
+
 1.13  Wed May 13 10:12:45 PDT 2009
         enforce LANG = en_US in Makefile.PL
 

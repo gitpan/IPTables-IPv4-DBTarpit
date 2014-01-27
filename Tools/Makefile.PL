@@ -119,26 +119,37 @@ sub MY::static_lib {
   inst_split($inherited,'static');
 }
 
-sub MY::postamble {
-  my $postamble = q|
-README	: Tools.pm
-	pod2text Tools.pm > README
-
-| .
-$rebuild . q| :
-	@$(NOOP)
-
-|;
-}
-
 sub MY::post_constants {
   package MY;
-  my $post_constants = q|
+  use Config;
+  my $post_constants = $Config{scriptdirexp} .'/pod2text';
+  if (-e $post_constants) {
+    $post_constants = q|   
+MY_POD2TEXT = |. $post_constants .q|
+|;
+  } else {
+    $post_constants = q|
+MY_POD2TEXT = echo "perl distro missing 'pod2text' to convert " 
+|;
+  }
+  $post_constants .= q|
 R_OBJECT = |. $relink_OBJECT . q|
 R_LDFROM = $(R_OBJECT)
 R_LDLOADLIBS = |. $relink_LIBS . q|
 R_EXTRALIBS = $(EXTRALIBS)
 R_LD_RUN_PATH = |. $relink_LD_RUN_PATH . q|
+
+|;
+}
+
+sub MY::postamble {
+  my $postamble = q|
+README	: Tools.pm
+	@$(MY_POD2TEXT) Tools.pm > README
+
+| .
+$rebuild . q| :
+	@$(NOOP)
 
 |;
 }

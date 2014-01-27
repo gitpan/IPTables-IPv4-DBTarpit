@@ -1,5 +1,8 @@
 Revision history for Perl extension IPTables::IPv4::DBTarpit.
 
+0.44  Mon Jan 27 11:59:58 PST 2014
+        modify Makefile.PL to bypass missing 'pod2text'
+
 0.43  Mon Apr 19 16:05:27 PDT 2010
 	Update Makefile.PL to work around \s+ bug in perl distributed with
 	some redHat versions.

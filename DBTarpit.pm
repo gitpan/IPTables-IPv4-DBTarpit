@@ -2,7 +2,7 @@
 #
 package IPTables::IPv4::DBTarpit;
 use vars qw($VERSION);
-$VERSION = do { q|char version[] = "dbtarpit 0.43, 4-19-10";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
+$VERSION = do { q|char version[] = "dbtarpit 0.44, 1-27-14";| =~ /(\d+)\.(\d+)/; sprintf("%d.%02d",$1,$2)};
 # returns $VERSION which is non-zero
 __END__
 
@@ -519,7 +519,7 @@ Michael Robinton <michael@bizsystems.com>
 
 =head1 COPYRIGHT AND LICENCE
 
-  Copyright 2003 - 2010, Michael Robinton <michael@bizsystems.com>
+  Copyright 2003 - 2014, Michael Robinton <michael@bizsystems.com>
  
   This program is free software; you can redistribute it and/or modify
   it under the terms of the GNU General Public License as published by
